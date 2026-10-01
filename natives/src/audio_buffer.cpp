@@ -63,6 +63,30 @@ Java_net_sixik_steamaudio_audio_AudioBuffer_nDeinterleave(JNIEnv* env, jclass, j
     env->ReleasePrimitiveArrayCritical(src, srcData, 0);
 }
 
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_audio_AudioBuffer_nMix(JNIEnv*, jclass, jlong contextPeer, jlong inPeer, jlong peer) {
+    iplAudioBufferMix(sajni::asContext(contextPeer),
+                      static_cast<IPLAudioBuffer*>(sajni::asPointer(inPeer)),
+                      static_cast<IPLAudioBuffer*>(sajni::asPointer(peer)));
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_audio_AudioBuffer_nDownmix(JNIEnv*, jclass, jlong contextPeer, jlong inPeer, jlong peer) {
+    iplAudioBufferDownmix(sajni::asContext(contextPeer),
+                          static_cast<IPLAudioBuffer*>(sajni::asPointer(inPeer)),
+                          static_cast<IPLAudioBuffer*>(sajni::asPointer(peer)));
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_audio_AudioBuffer_nConvertAmbisonics(JNIEnv*, jclass, jlong contextPeer, jint inType,
+                                                               jint outType, jlong inPeer, jlong peer) {
+    iplAudioBufferConvertAmbisonics(sajni::asContext(contextPeer),
+                                    static_cast<IPLAmbisonicsType>(inType),
+                                    static_cast<IPLAmbisonicsType>(outType),
+                                    static_cast<IPLAudioBuffer*>(sajni::asPointer(inPeer)),
+                                    static_cast<IPLAudioBuffer*>(sajni::asPointer(peer)));
+}
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -125,6 +125,79 @@ public final class AudioBuffer implements AutoCloseable {
     }
 
     /**
+     * Mixes another buffer into this one ({@code iplAudioBufferMix}).
+     * Both buffers must have the same number of channels and samples.
+     *
+     * @param in the source buffer whose content is mixed into this buffer
+     * @throws IllegalStateException    if either buffer is closed
+     * @throws IllegalArgumentException if the channel/sample counts differ
+     */
+    public void mix(AudioBuffer in) {
+        requireOpen();
+        if (!in.isOpen()) {
+            throw new IllegalStateException("Input AudioBuffer is closed");
+        }
+        if (in.numChannels != numChannels || in.numSamples != numSamples) {
+            throw new IllegalArgumentException(
+                    "mix requires matching buffers: " + in.numChannels + "ch/" + in.numSamples
+                            + " samples vs " + numChannels + "ch/" + numSamples + " samples");
+        }
+        nMix(contextPeer, in.peerForEffect(), peer);
+    }
+
+    /**
+     * Downmixes a multi-channel buffer into a mono buffer
+     * ({@code iplAudioBufferDownmix}). The channels are summed and divided
+     * by the number of source channels. This buffer must be mono; the source
+     * must have the same number of samples.
+     *
+     * @param in the multi-channel source buffer
+     * @throws IllegalStateException    if either buffer is closed
+     * @throws IllegalArgumentException if this buffer is not mono or the
+     *                                  sample counts differ
+     */
+    public void downmixFrom(AudioBuffer in) {
+        requireOpen();
+        if (!in.isOpen()) {
+            throw new IllegalStateException("Input AudioBuffer is closed");
+        }
+        if (numChannels != 1) {
+            throw new IllegalArgumentException("downmix target must be mono");
+        }
+        if (in.numSamples != numSamples) {
+            throw new IllegalArgumentException(
+                    "downmix requires matching sample counts: " + in.numSamples + " vs " + numSamples);
+        }
+        nDownmix(contextPeer, in.peerForEffect(), peer);
+    }
+
+    /**
+     * Converts this buffer from one Ambisonics format to another
+     * ({@code iplAudioBufferConvertAmbisonics}). Both buffers must have the
+     * same number of samples; this buffer receives the result. Conversion
+     * may be applied to the same buffer on the native side, but here the
+     * source and destination are distinct Java objects.
+     *
+     * @param inType Ambisonics format of the source
+     * @param outType Ambisonics format for this buffer
+     * @param in     the source buffer
+     * @throws IllegalStateException    if either buffer is closed
+     * @throws IllegalArgumentException if the sample counts differ
+     */
+    public void convertAmbisonicsFrom(int inType, int outType, AudioBuffer in) {
+        requireOpen();
+        if (!in.isOpen()) {
+            throw new IllegalStateException("Input AudioBuffer is closed");
+        }
+        if (in.numSamples != numSamples) {
+            throw new IllegalArgumentException(
+                    "ambisonics conversion requires matching sample counts: "
+                            + in.numSamples + " vs " + numSamples);
+        }
+        nConvertAmbisonics(contextPeer, inType, outType, in.peerForEffect(), peer);
+    }
+
+    /**
      * Returns the peer pointer of the context without requiring public
      * access to the {@link Context} field.
      *
@@ -193,4 +266,35 @@ public final class AudioBuffer implements AutoCloseable {
      * @param src         source interleaved array
      */
     private static native void nDeinterleave(long contextPeer, long peer, float[] src);
+
+    /**
+     * Mixes the source buffer into this one via {@code iplAudioBufferMix}.
+     *
+     * @param contextPeer opaque pointer of the context
+     * @param inPeer      pointer to the source native buffer structure
+     * @param peer        pointer to the destination native buffer structure
+     */
+    private static native void nMix(long contextPeer, long inPeer, long peer);
+
+    /**
+     * Downmixes the multi-channel source into this mono buffer via
+     * {@code iplAudioBufferDownmix}.
+     *
+     * @param contextPeer opaque pointer of the context
+     * @param inPeer      pointer to the source native buffer structure
+     * @param peer        pointer to the destination native buffer structure
+     */
+    private static native void nDownmix(long contextPeer, long inPeer, long peer);
+
+    /**
+     * Converts Ambisonics formats via {@code iplAudioBufferConvertAmbisonics}.
+     *
+     * @param contextPeer opaque pointer of the context
+     * @param inType      source Ambisonics format ({@code IPLAmbisonicsType})
+     * @param outType     destination Ambisonics format ({@code IPLAmbisonicsType})
+     * @param inPeer      pointer to the source native buffer structure
+     * @param peer        pointer to the destination native buffer structure
+     */
+    private static native void nConvertAmbisonics(long contextPeer, int inType, int outType,
+                                                  long inPeer, long peer);
 }

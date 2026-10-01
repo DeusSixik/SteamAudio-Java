@@ -40,6 +40,39 @@ Java_net_sixik_steamaudio_geometry_Scene_nCreateStaticMesh(JNIEnv* env, jclass, 
 }
 
 JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_geometry_StaticMesh_nSetMaterial(JNIEnv* env, jclass, jlong peer, jlong scenePeer,
+                                                           jobject newMaterial, jint index) {
+    auto materialData = static_cast<IPLMaterial*>(env->GetDirectBufferAddress(newMaterial));
+    if (materialData == nullptr) {
+        sajni::throwSteamAudioException(env, IPL_STATUS_FAILURE);
+        return;
+    }
+
+    iplStaticMeshSetMaterial(static_cast<IPLStaticMesh>(sajni::asPointer(peer)),
+                             static_cast<IPLScene>(sajni::asPointer(scenePeer)),
+                             materialData, static_cast<IPLint32>(index));
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_geometry_StaticMesh_nSave(JNIEnv*, jclass, jlong peer, jlong destinationPeer) {
+    iplStaticMeshSave(static_cast<IPLStaticMesh>(sajni::asPointer(peer)),
+                      static_cast<IPLSerializedObject>(sajni::asPointer(destinationPeer)));
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_sixik_steamaudio_geometry_StaticMesh_nLoad(JNIEnv* env, jclass, jlong scenePeer, jlong sourcePeer) {
+    IPLStaticMesh staticMesh = nullptr;
+    IPLerror status = iplStaticMeshLoad(static_cast<IPLScene>(sajni::asPointer(scenePeer)),
+                                        static_cast<IPLSerializedObject>(sajni::asPointer(sourcePeer)),
+                                        nullptr, nullptr, &staticMesh);
+    if (status != IPL_STATUS_SUCCESS) {
+        sajni::throwSteamAudioException(env, status);
+        return 0;
+    }
+    return sajni::asPeer(staticMesh);
+}
+
+JNIEXPORT void JNICALL
 Java_net_sixik_steamaudio_geometry_StaticMesh_nAdd(JNIEnv*, jclass, jlong peer, jlong scenePeer) {
     iplStaticMeshAdd(static_cast<IPLStaticMesh>(sajni::asPointer(peer)),
                      static_cast<IPLScene>(sajni::asPointer(scenePeer)));

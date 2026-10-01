@@ -1,8 +1,8 @@
 package net.sixik.steamaudio.simulation;
 import net.sixik.steamaudio.core.Context;
 import net.sixik.steamaudio.core.SerializedObject;
-import net.sixik.steamaudio.core.SteamAudio;
 import net.sixik.steamaudio.core.SteamAudioException;
+import net.sixik.steamaudio.geometry.Material;
 
 /**
  * Wrapper around {@code IPLProbeBatch} — a collection of probes that stores
@@ -113,6 +113,87 @@ public final class ProbeBatch implements AutoCloseable {
     }
 
     /**
+     * Baked data layer identifier: reflections
+     * ({@code IPL_BAKEDDATATYPE_REFLECTIONS}).
+     */
+    public static final int DATA_TYPE_REFLECTIONS = 0;
+
+    /**
+     * Baked data layer identifier: pathing ({@code IPL_BAKEDDATATYPE_PATHING}).
+     */
+    public static final int DATA_TYPE_PATHING = 1;
+
+    /**
+     * Baked data variation: reverb ({@code IPL_BAKEDDATAVARIATION_REVERB}).
+     */
+    public static final int VARIATION_REVERB = 0;
+
+    /**
+     * Baked data variation: static source
+     * ({@code IPL_BAKEDDATAVARIATION_STATICSOURCE}).
+     */
+    public static final int VARIATION_STATIC_SOURCE = 1;
+
+    /**
+     * Baked data variation: static listener
+     * ({@code IPL_BAKEDDATAVARIATION_STATICLISTENER}).
+     */
+    public static final int VARIATION_STATIC_LISTENER = 2;
+
+    /**
+     * Baked data variation: dynamic ({@code IPL_BAKEDDATAVARIATION_DYNAMIC}).
+     */
+    public static final int VARIATION_DYNAMIC = 3;
+
+    /**
+     * Returns the size in bytes of a specific baked data layer
+     * ({@code iplProbeBatchGetDataSize}). Layers are identified by
+     * {@code (dataType, variation)}; the endpoint influence sphere is unused
+     * for the reverb and dynamic variations and left at its default.
+     *
+     * @param dataType  {@link #DATA_TYPE_REFLECTIONS} or {@link #DATA_TYPE_PATHING}
+     * @param variation {@link #VARIATION_REVERB}, {@link #VARIATION_STATIC_SOURCE},
+     *                  {@link #VARIATION_STATIC_LISTENER} or {@link #VARIATION_DYNAMIC}
+     * @return size of the baked data layer, in bytes (0 if absent)
+     */
+    public long getDataSize(int dataType, int variation) {
+        requireOpen();
+        return nGetDataSize(peer, dataType, variation);
+    }
+
+    /**
+     * Removes a baked data layer from the batch
+     * ({@code iplProbeBatchRemoveData}); call {@link #commit()} afterwards.
+     *
+     * @param dataType  {@link #DATA_TYPE_REFLECTIONS} or {@link #DATA_TYPE_PATHING}
+     * @param variation one of the {@code VARIATION_*} constants
+     */
+    public void removeData(int dataType, int variation) {
+        requireOpen();
+        nRemoveData(peer, dataType, variation);
+    }
+
+    /**
+     * Retrieves the parametric reverb times (RT60 per frequency band) stored
+     * at a probe for a baked layer ({@code iplProbeBatchGetReverb}). Only
+     * meaningful for baked reflections data.
+     *
+     * @param dataType  {@link #DATA_TYPE_REFLECTIONS} or {@link #DATA_TYPE_PATHING}
+     * @param variation one of the {@code VARIATION_*} constants
+     * @param probeIndex index of the probe within the batch
+     * @param out array of at least {@code Material.NUM_BANDS} elements;
+     *            receives the RT60 values
+     */
+    public void getReverb(int dataType, int variation, int probeIndex, float[] out) {
+        requireOpen();
+        if (out.length < Material.NUM_BANDS) {
+            throw new IllegalArgumentException("out must contain at least "
+                    + Material.NUM_BANDS + " elements");
+        }
+        nGetReverb(peer, dataType, variation, probeIndex, out);
+    }
+
+    /**
      * Checks that the batch is open.
      *
      * @throws IllegalStateException if the batch is closed
@@ -217,4 +298,34 @@ public final class ProbeBatch implements AutoCloseable {
      * @param peer the batch opaque pointer
      */
     private static native void nRelease(long peer);
+
+    /**
+     * Returns the baked layer size via {@code iplProbeBatchGetDataSize}.
+     *
+     * @param peer      opaque pointer of the batch
+     * @param dataType  baked data type ({@code IPLBakedDataType})
+     * @param variation baked data variation ({@code IPLBakedDataVariation})
+     * @return size in bytes
+     */
+    private static native long nGetDataSize(long peer, int dataType, int variation);
+
+    /**
+     * Removes a baked layer via {@code iplProbeBatchRemoveData}.
+     *
+     * @param peer      opaque pointer of the batch
+     * @param dataType  baked data type ({@code IPLBakedDataType})
+     * @param variation baked data variation ({@code IPLBakedDataVariation})
+     */
+    private static native void nRemoveData(long peer, int dataType, int variation);
+
+    /**
+     * Retrieves reverb times via {@code iplProbeBatchGetReverb}.
+     *
+     * @param peer       opaque pointer of the batch
+     * @param dataType   baked data type ({@code IPLBakedDataType})
+     * @param variation  baked data variation ({@code IPLBakedDataVariation})
+     * @param probeIndex index of the probe
+     * @param out        destination array (at least {@code IPL_NUM_BANDS})
+     */
+    private static native void nGetReverb(long peer, int dataType, int variation, int probeIndex, float[] out);
 }

@@ -5,16 +5,16 @@ targeting Java 17+.
 
 ## API coverage
 
-Steam Audio 4.8.1 exposes **210 `ipl*` functions**. Covered: **~130 (62%)**.
+Steam Audio 4.8.1 exposes **210 `ipl*` functions**. Covered: **~150 (71%)**.
 
 ### Done
 
 | Area | Classes |
 |---|---|
 | Context & math | `core.Context` (+ `calculateDistanceAttenuation` / `calculateAirAbsorption` / `calculateDirectivity`), `core.Vector3`, `core.SerializedObject` |
-| Audio buffers & HRTF | `audio.AudioBuffer`, `audio.HRTF` (+ SOFA file/memory loading), `audio.SpeakerLayout` |
-| Geometry | `geometry.Scene`, `geometry.StaticMesh`, `geometry.Material` |
-| Simulation | `simulation.Simulator`, `simulation.Source`, `simulation.ProbeArray`, `simulation.ProbeBatch`, `simulation.PathBaker` |
+| Audio buffers & HRTF | `audio.AudioBuffer` (+ `mix`, `downmixFrom`, `convertAmbisonicsFrom`), `audio.HRTF` (+ SOFA file/memory loading), `audio.SpeakerLayout`, `audio.AmbisonicsType` |
+| Geometry | `geometry.Scene`, `geometry.StaticMesh` (+ `save`/`load`/`setMaterial`), `geometry.InstancedMesh`, `geometry.Material` |
+| Simulation | `simulation.Simulator`, `simulation.Source`, `simulation.ProbeArray`, `simulation.ProbeBatch` (+ `getDataSize`/`removeData`/`getReverb`), `simulation.PathBaker` |
 | Effects | `effects.BinauralEffect`, `effects.DirectEffect`, `effects.PanningEffect`, `effects.VirtualSurroundEffect`, `effects.ReflectionEffect`, `effects.ReflectionMixer`, `effects.PathEffect`, `effects.Ambisonics{Encode,Rotation,Panning,Binaural,Decode}Effect` (all with full reset/getTail lifecycle) |
 | Loader | Auto-build via CMake (`configureNatives`/`buildNatives`), natives bundled into the jar, extraction to a content-hashed temp dir with `-Dsteamaudio.natives` override |
 | Benchmarks | `src/jmh` (`SteamAudioBenchmark`), zero-alloc verified via `-prof gc` |
@@ -29,13 +29,12 @@ Note: `AmbisonicsEncodeEffect` and `PanningEffect` crossfade from the previous
 frame's direction; after creation/reset the first `apply` is a warm-up pass,
 measure from the second frame (see `P1EffectsTest`).
 
-### P2 — useful extensions (next)
+### P2 — useful extensions: DONE
 
-6. **`AudioBuffer` ops** (3) — `iplAudioBufferMix`, `iplAudioBufferDownmix`, `iplAudioBufferConvertAmbisonics`.
-7. **`InstancedMesh`** (6) — moving geometry (`create`/`add`/`remove`/`updateTransform`).
-8. **`StaticMesh` extras** (3) — `load`, `save`, `setMaterial`.
-9. **`ProbeBatch` data reads** (4) — `getEnergyField`, `getReverb`, `getDataSize`, `removeData`.
-10. **Misc** — `Retain` variants where shared ownership is needed, `iplSceneSaveOBJ`.
+Completed: `AudioBuffer.mix/downmixFrom/convertAmbisonicsFrom` (+ `audio.AmbisonicsType`),
+`geometry.InstancedMesh` (create/add/remove/updateTransform), `StaticMesh.save/load/setMaterial`,
+`ProbeBatch.getDataSize/removeData/getReverb` (with baked-layer identifier constants).
+`iplProbeBatchGetEnergyField` is deferred with the `EnergyField` class (P3).
 
 ### P3 — specialized / platform-specific (defer)
 

@@ -19,6 +19,7 @@ add_library(SteamAudioJni SHARED
         src/context.cpp
         src/direct_effect.cpp
         src/hrtf.cpp
+        src/instanced_mesh.cpp
         src/path_baker.cpp
         src/path_effect.cpp
         src/panning_effect.cpp

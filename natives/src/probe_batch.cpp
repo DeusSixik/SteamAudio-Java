@@ -122,6 +122,45 @@ Java_net_sixik_steamaudio_simulation_ProbeBatch_nRelease(JNIEnv*, jclass, jlong 
     iplProbeBatchRelease(&probeBatch);
 }
 
+JNIEXPORT jlong JNICALL
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nGetDataSize(JNIEnv*, jclass, jlong peer, jint dataType, jint variation) {
+    IPLBakedDataIdentifier identifier{};
+    identifier.type = static_cast<IPLBakedDataType>(dataType);
+    identifier.variation = static_cast<IPLBakedDataVariation>(variation);
+    identifier.endpointInfluence.center = IPLVector3{0.0f, 0.0f, 0.0f};
+    identifier.endpointInfluence.radius = 0.0f;
+
+    IPLsize size = iplProbeBatchGetDataSize(static_cast<IPLProbeBatch>(sajni::asPointer(peer)), &identifier);
+    return static_cast<jlong>(size);
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nRemoveData(JNIEnv*, jclass, jlong peer, jint dataType, jint variation) {
+    IPLBakedDataIdentifier identifier{};
+    identifier.type = static_cast<IPLBakedDataType>(dataType);
+    identifier.variation = static_cast<IPLBakedDataVariation>(variation);
+    identifier.endpointInfluence.center = IPLVector3{0.0f, 0.0f, 0.0f};
+    identifier.endpointInfluence.radius = 0.0f;
+
+    iplProbeBatchRemoveData(static_cast<IPLProbeBatch>(sajni::asPointer(peer)), &identifier);
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nGetReverb(JNIEnv* env, jclass, jlong peer, jint dataType,
+                                                           jint variation, jint probeIndex, jfloatArray out) {
+    IPLBakedDataIdentifier identifier{};
+    identifier.type = static_cast<IPLBakedDataType>(dataType);
+    identifier.variation = static_cast<IPLBakedDataVariation>(variation);
+    identifier.endpointInfluence.center = IPLVector3{0.0f, 0.0f, 0.0f};
+    identifier.endpointInfluence.radius = 0.0f;
+
+    IPLfloat32 reverbTimes[IPL_NUM_BANDS];
+    iplProbeBatchGetReverb(static_cast<IPLProbeBatch>(sajni::asPointer(peer)), &identifier,
+                           static_cast<IPLint32>(probeIndex), reverbTimes);
+
+    env->SetFloatArrayRegion(out, 0, IPL_NUM_BANDS, reverbTimes);
+}
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
