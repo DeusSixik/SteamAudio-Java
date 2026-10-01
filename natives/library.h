@@ -1,0 +1,6 @@
+#ifndef STEAMAUDIOJNI_LIBRARY_H
+#define STEAMAUDIOJNI_LIBRARY_H
+
+void hello();
+
+#endif // STEAMAUDIOJNI_LIBRARY_H
