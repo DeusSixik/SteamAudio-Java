@@ -63,12 +63,47 @@ public final class Simulator implements AutoCloseable {
      * @throws IllegalStateException if the context is closed
      */
     public Simulator(Context context, int simulationFlags, int samplingRate, int frameSize, int reflectionType) {
+        this(context, simulationFlags, Scene.SCENE_TYPE_DEFAULT, reflectionType,
+                samplingRate, frameSize, null, null, null);
+    }
+
+    /**
+     * Creates a simulator with explicit scene type and GPU devices via
+     * {@code iplSimulatorCreate}. Other settings are fixed: up to 256
+     * occlusion samples, 4096 rays, 2 s IR, Ambisonics order 1, 8 sources,
+     * 1 thread.
+     *
+     * @param context         Steam Audio context
+     * @param simulationFlags simulation types ({@code FLAGS_*})
+     * @param sceneType       scene type used for simulation
+     *                        ({@code Scene.SCENE_TYPE_*}); must match the
+     *                        scene passed to {@link #setScene}
+     * @param reflectionType  reflections effect type
+     *                        ({@code ReflectionEffect.TYPE_*})
+     * @param samplingRate    sampling rate, Hz
+     * @param frameSize       frame size, samples
+     * @param openCLDevice    OpenCL device; required for Radeon Rays scenes
+     *                        and TAN reflections, {@code null} otherwise
+     * @param radeonRaysDevice Radeon Rays device; required for Radeon Rays
+     *                        scenes, {@code null} otherwise
+     * @param tanDevice       TrueAudio Next device; required for TAN
+     *                        reflections, {@code null} otherwise
+     * @throws SteamAudioException   if Steam Audio returned an error
+     * @throws IllegalStateException if the context is closed
+     */
+    public Simulator(Context context, int simulationFlags, int sceneType, int reflectionType,
+                     int samplingRate, int frameSize,
+                     net.sixik.steamaudio.gpu.OpenCLDevice openCLDevice,
+                     net.sixik.steamaudio.gpu.RadeonRaysDevice radeonRaysDevice,
+                     net.sixik.steamaudio.gpu.TrueAudioNextDevice tanDevice) {
         if (!context.isOpen()) {
             throw new IllegalStateException("Context is closed");
         }
-        peer = nCreate(context.peerForChildren(), simulationFlags, Scene.SCENE_TYPE_DEFAULT,
-                reflectionType, 256, 4096, 32,
-                2.0f, 1, 8, 1, 8, 8, samplingRate, frameSize);
+        peer = nCreate(context.peerForChildren(), simulationFlags, sceneType, reflectionType,
+                256, 4096, 32, 2.0f, 1, 8, 1, 8, 8, samplingRate, frameSize,
+                openCLDevice == null ? 0 : openCLDevice.peerForChildren(),
+                radeonRaysDevice == null ? 0 : radeonRaysDevice.peerForChildren(),
+                tanDevice == null ? 0 : tanDevice.peerForChildren());
     }
 
     /**
@@ -287,7 +322,8 @@ public final class Simulator implements AutoCloseable {
     private static native long nCreate(long contextPeer, int flags, int sceneType, int reflectionType,
                                        int maxNumOcclusionSamples, int maxNumRays, int numDiffuseSamples,
                                        float maxDuration, int maxOrder, int maxNumSources, int numThreads,
-                                       int rayBatchSize, int numVisSamples, int samplingRate, int frameSize);
+                                       int rayBatchSize, int numVisSamples, int samplingRate, int frameSize,
+                                       long openCLDevicePeer, long radeonRaysDevicePeer, long tanDevicePeer);
 
     /**
      * Sets the scene via {@code iplSimulatorSetScene}.

@@ -6,10 +6,12 @@ extern "C" {
 
 JNIEXPORT jlong JNICALL
 Java_net_sixik_steamaudio_simulation_Simulator_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint flags, jint sceneType,
-                                            jint reflectionType, jint maxNumOcclusionSamples, jint maxNumRays,
-                                            jint numDiffuseSamples, jfloat maxDuration, jint maxOrder,
-                                            jint maxNumSources, jint numThreads, jint rayBatchSize,
-                                            jint numVisSamples, jint samplingRate, jint frameSize) {
+                                                       jint reflectionType, jint maxNumOcclusionSamples, jint maxNumRays,
+                                                       jint numDiffuseSamples, jfloat maxDuration, jint maxOrder,
+                                                       jint maxNumSources, jint numThreads, jint rayBatchSize,
+                                                       jint numVisSamples, jint samplingRate, jint frameSize,
+                                                       jlong openCLDevicePeer, jlong radeonRaysDevicePeer,
+                                                       jlong tanDevicePeer) {
     IPLSimulationSettings settings{};
     settings.flags = static_cast<IPLSimulationFlags>(flags);
     settings.sceneType = static_cast<IPLSceneType>(sceneType);
@@ -25,9 +27,9 @@ Java_net_sixik_steamaudio_simulation_Simulator_nCreate(JNIEnv* env, jclass, jlon
     settings.numVisSamples = static_cast<IPLint32>(numVisSamples);
     settings.samplingRate = static_cast<IPLint32>(samplingRate);
     settings.frameSize = static_cast<IPLint32>(frameSize);
-    settings.openCLDevice = nullptr;
-    settings.radeonRaysDevice = nullptr;
-    settings.tanDevice = nullptr;
+    settings.openCLDevice = static_cast<IPLOpenCLDevice>(sajni::asPointer(openCLDevicePeer));
+    settings.radeonRaysDevice = static_cast<IPLRadeonRaysDevice>(sajni::asPointer(radeonRaysDevicePeer));
+    settings.tanDevice = static_cast<IPLTrueAudioNextDevice>(sajni::asPointer(tanDevicePeer));
 
     IPLSimulator simulator = nullptr;
     IPLerror status = iplSimulatorCreate(sajni::asContext(contextPeer), &settings, &simulator);

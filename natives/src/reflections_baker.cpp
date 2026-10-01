@@ -17,11 +17,12 @@ Java_net_sixik_steamaudio_simulation_ReflectionsBaker_nBake(JNIEnv*, jclass, jlo
                                                             jint numDiffuseSamples, jfloat simulatedDuration,
                                                             jfloat savedDuration, jint order,
                                                             jfloat irradianceMinDistance, jint numThreads,
-                                                            jint rayBatchSize) {
+                                                            jint rayBatchSize, jlong openCLDevicePeer,
+                                                            jlong radeonRaysDevicePeer) {
     IPLReflectionsBakeParams params{};
     params.scene = static_cast<IPLScene>(sajni::asPointer(scenePeer));
     params.probeBatch = static_cast<IPLProbeBatch>(sajni::asPointer(probeBatchPeer));
-    params.sceneType = IPL_SCENETYPE_DEFAULT;
+    params.sceneType = (openCLDevicePeer != 0) ? IPL_SCENETYPE_RADEONRAYS : IPL_SCENETYPE_DEFAULT;
     params.identifier.type = static_cast<IPLBakedDataType>(dataType);
     params.identifier.variation = static_cast<IPLBakedDataVariation>(variation);
     params.identifier.endpointInfluence.center = IPLVector3{0.0f, 0.0f, 0.0f};
@@ -37,8 +38,8 @@ Java_net_sixik_steamaudio_simulation_ReflectionsBaker_nBake(JNIEnv*, jclass, jlo
     params.numThreads = static_cast<IPLint32>(numThreads);
     params.rayBatchSize = static_cast<IPLint32>(rayBatchSize);
     params.bakeBatchSize = 1;
-    params.openCLDevice = nullptr;
-    params.radeonRaysDevice = nullptr;
+    params.openCLDevice = static_cast<IPLOpenCLDevice>(sajni::asPointer(openCLDevicePeer));
+    params.radeonRaysDevice = static_cast<IPLRadeonRaysDevice>(sajni::asPointer(radeonRaysDevicePeer));
 
     iplReflectionsBakerBake(sajni::asContext(contextPeer), &params, noopProgressCallback, nullptr);
 }

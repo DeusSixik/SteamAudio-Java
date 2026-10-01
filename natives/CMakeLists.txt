@@ -19,6 +19,7 @@ add_library(SteamAudioJni SHARED
         src/context.cpp
         src/direct_effect.cpp
         src/energy_field.cpp
+        src/gpu_devices.cpp
         src/hrtf.cpp
         src/impulse_response.cpp
         src/instanced_mesh.cpp

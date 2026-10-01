@@ -25,6 +25,28 @@ Java_net_sixik_steamaudio_geometry_Scene_nCreate(JNIEnv* env, jclass, jlong cont
     return sajni::asPeer(scene);
 }
 
+JNIEXPORT jlong JNICALL
+Java_net_sixik_steamaudio_geometry_Scene_nCreateWithEmbreeDevice(JNIEnv* env, jclass, jlong contextPeer, jint type,
+                                                                 jlong embreeDevicePeer) {
+    IPLSceneSettings settings{};
+    settings.type = static_cast<IPLSceneType>(type);
+    settings.closestHitCallback = nullptr;
+    settings.anyHitCallback = nullptr;
+    settings.batchedClosestHitCallback = nullptr;
+    settings.batchedAnyHitCallback = nullptr;
+    settings.userData = nullptr;
+    settings.embreeDevice = static_cast<IPLEmbreeDevice>(sajni::asPointer(embreeDevicePeer));
+    settings.radeonRaysDevice = nullptr;
+
+    IPLScene scene = nullptr;
+    IPLerror status = iplSceneCreate(sajni::asContext(contextPeer), &settings, &scene);
+    if (status != IPL_STATUS_SUCCESS) {
+        sajni::throwSteamAudioException(env, status);
+        return 0;
+    }
+    return sajni::asPeer(scene);
+}
+
 JNIEXPORT void JNICALL
 Java_net_sixik_steamaudio_geometry_Scene_nCommit(JNIEnv*, jclass, jlong peer) {
     iplSceneCommit(static_cast<IPLScene>(sajni::asPointer(peer)));

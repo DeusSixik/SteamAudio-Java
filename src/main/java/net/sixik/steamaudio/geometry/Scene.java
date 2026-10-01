@@ -24,6 +24,16 @@ public final class Scene implements AutoCloseable {
     /** Built-in Steam Audio CPU ray tracer ({@code IPL_SCENETYPE_DEFAULT}). */
     public static final int SCENE_TYPE_DEFAULT = 0;
 
+    /** Intel Embree ray tracer; requires {@code gpu.EmbreeDevice} ({@code IPL_SCENETYPE_EMBREE}). */
+    public static final int SCENE_TYPE_EMBREE = 1;
+
+    /** Radeon Rays GPU ray tracer; requires an OpenCL device and
+     * {@code gpu.RadeonRaysDevice} ({@code IPL_SCENETYPE_RADEONRAYS}). */
+    public static final int SCENE_TYPE_RADEONRAYS = 2;
+
+    /** Custom ray tracer via callbacks (not exposed yet) ({@code IPL_SCENETYPE_CUSTOM}). */
+    public static final int SCENE_TYPE_CUSTOM = 3;
+
     /** Opaque pointer to {@code IPLScene}; 0 means the scene is closed. */
     private long peer;
 
@@ -50,11 +60,30 @@ public final class Scene implements AutoCloseable {
      * @throws IllegalStateException if the context is closed
      */
     public Scene(Context context, int type) {
+        this(context, type, null);
+    }
+
+    /**
+     * Creates a scene of the given type with an optional ray-tracing device
+     * via {@code iplSceneCreate}.
+     *
+     * @param context Steam Audio context
+     * @param type    scene type: {@link #SCENE_TYPE_DEFAULT},
+     *                {@link #SCENE_TYPE_EMBREE} (requires an Embree device),
+     *                {@link #SCENE_TYPE_RADEONRAYS} (requires a Radeon Rays
+     *                device) or {@link #SCENE_TYPE_CUSTOM}
+     * @param embreeDevice Embree device; required when {@code type} is
+     *                {@code SCENE_TYPE_EMBREE}, ignored otherwise
+     * @throws SteamAudioException   if Steam Audio returned an error
+     * @throws IllegalStateException if the context is closed
+     */
+    public Scene(Context context, int type, net.sixik.steamaudio.gpu.EmbreeDevice embreeDevice) {
         if (!context.isOpen()) {
             throw new IllegalStateException("Context is closed");
         }
         this.contextPeer = context.peerForChildren();
-        this.peer = nCreate(contextPeer, type);
+        this.peer = nCreateWithEmbreeDevice(contextPeer, type,
+                embreeDevice == null ? 0 : embreeDevice.peerForChildren());
     }
 
     /**
@@ -299,6 +328,17 @@ public final class Scene implements AutoCloseable {
      * @return opaque pointer to the created scene
      */
     private static native long nCreate(long contextPeer, int type);
+
+    /**
+     * Creates a scene via {@code iplSceneCreate} with an optional Embree
+     * device wired into the settings.
+     *
+     * @param contextPeer     opaque pointer of the context
+     * @param type            scene type ({@code IPLSceneType})
+     * @param embreeDevicePeer opaque pointer of the Embree device or 0
+     * @return opaque pointer to the created scene
+     */
+    private static native long nCreateWithEmbreeDevice(long contextPeer, int type, long embreeDevicePeer);
 
     /**
      * Creates a static mesh via {@code iplStaticMeshCreate}.

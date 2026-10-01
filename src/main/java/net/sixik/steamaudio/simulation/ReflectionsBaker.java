@@ -59,6 +59,47 @@ public final class ReflectionsBaker {
                             int numRays, int numBounces, int numDiffuseSamples,
                             float simulatedDuration, float savedDuration, int order,
                             float irradianceMinDistance, int numThreads, int rayBatchSize) {
+        bake(context, scene, probeBatch, dataType, variation, bakeFlags,
+                numRays, numBounces, numDiffuseSamples,
+                simulatedDuration, savedDuration, order,
+                irradianceMinDistance, numThreads, rayBatchSize, null, null);
+    }
+
+    /**
+     * Bakes a reflections layer with optional GPU acceleration
+     * ({@code iplReflectionsBakerBake}).
+     *
+     * @param context             Steam Audio context
+     * @param scene               committed scene containing the geometry
+     * @param probeBatch          probe batch with committed probes
+     * @param dataType            {@link ProbeBatch#DATA_TYPE_REFLECTIONS}
+     * @param variation           typically {@link ProbeBatch#VARIATION_REVERB}
+     * @param bakeFlags           combination of {@link #BAKE_CONVOLUTION} and
+     *                            {@link #BAKE_PARAMETRIC}
+     * @param numRays             number of rays traced from each probe
+     * @param numBounces          number of times each ray bounces
+     * @param numDiffuseSamples   number of diffuse sampling directions
+     * @param simulatedDuration   IR duration used during simulation, seconds
+     * @param savedDuration       IR duration saved into the batch, seconds
+     * @param order               Ambisonics order of the baked IRs
+     * @param irradianceMinDistance minimum source-to-surface distance used
+     *                            for energy calculations, meters
+     * @param numThreads          number of bake threads
+     * @param rayBatchSize        rays per batch for custom ray tracers
+     * @param openCLDevice        OpenCL device for GPU baking, or {@code null}
+     *                            for the CPU ray tracer
+     * @param radeonRaysDevice    Radeon Rays device for GPU ray tracing, or
+     *                            {@code null}; requires {@code openCLDevice}
+     * @throws SteamAudioException   if Steam Audio returns an error
+     * @throws IllegalStateException if the context, scene or batch is closed
+     */
+    public static void bake(Context context, Scene scene, ProbeBatch probeBatch,
+                            int dataType, int variation, int bakeFlags,
+                            int numRays, int numBounces, int numDiffuseSamples,
+                            float simulatedDuration, float savedDuration, int order,
+                            float irradianceMinDistance, int numThreads, int rayBatchSize,
+                            net.sixik.steamaudio.gpu.OpenCLDevice openCLDevice,
+                            net.sixik.steamaudio.gpu.RadeonRaysDevice radeonRaysDevice) {
         if (!context.isOpen() || scene == null || !scene.isOpen()
                 || probeBatch == null || !probeBatch.isOpen()) {
             throw new IllegalStateException("Context, Scene or ProbeBatch is closed");
@@ -67,7 +108,9 @@ public final class ReflectionsBaker {
                 dataType, variation, bakeFlags,
                 numRays, numBounces, numDiffuseSamples,
                 simulatedDuration, savedDuration, order,
-                irradianceMinDistance, numThreads, rayBatchSize);
+                irradianceMinDistance, numThreads, rayBatchSize,
+                openCLDevice == null ? 0 : openCLDevice.peerForChildren(),
+                radeonRaysDevice == null ? 0 : radeonRaysDevice.peerForChildren());
     }
 
     /**
@@ -103,7 +146,8 @@ public final class ReflectionsBaker {
                                      int dataType, int variation, int bakeFlags,
                                      int numRays, int numBounces, int numDiffuseSamples,
                                      float simulatedDuration, float savedDuration, int order,
-                                     float irradianceMinDistance, int numThreads, int rayBatchSize);
+                                     float irradianceMinDistance, int numThreads, int rayBatchSize,
+                                     long openCLDevicePeer, long radeonRaysDevicePeer);
 
     /**
      * Cancels baking via {@code iplReflectionsBakerCancelBake}.
