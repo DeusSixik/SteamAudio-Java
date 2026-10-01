@@ -43,3 +43,10 @@ bin/
 .DS_Store
 /.idea
 /natives/.idea
+
+### Native builds ###
+natives/build/
+natives/cmake-build-debug/
+
+### Bundled natives (copied by copyNatives task) ###
+src/main/resources/net/sixik/steamaudio/natives/
