@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_DirectEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_DirectEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                jint frameSize, jint numChannels) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -25,7 +25,7 @@ Java_net_sixik_steamaudio_DirectEffect_nCreate(JNIEnv* env, jclass, jlong contex
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_DirectEffect_nApply(JNIEnv* env, jclass, jlong effectPeer, jfloatArray directOutputs,
+Java_net_sixik_steamaudio_effects_DirectEffect_nApply(JNIEnv* env, jclass, jlong effectPeer, jfloatArray directOutputs,
                                               jint effectFlags, jint transmissionType, jlong inPeer, jlong outPeer) {
     jfloat* outputsData = static_cast<jfloat*>(env->GetPrimitiveArrayCritical(directOutputs, nullptr));
     if (outputsData == nullptr) {
@@ -58,18 +58,18 @@ Java_net_sixik_steamaudio_DirectEffect_nApply(JNIEnv* env, jclass, jlong effectP
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_DirectEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_DirectEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
     iplDirectEffectReset(static_cast<IPLDirectEffect>(sajni::asPointer(effectPeer)));
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_DirectEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_DirectEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
     IPLint32 tailSize = iplDirectEffectGetTailSize(static_cast<IPLDirectEffect>(sajni::asPointer(effectPeer)));
     return static_cast<jint>(tailSize);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_DirectEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+Java_net_sixik_steamaudio_effects_DirectEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
     IPLAudioEffectState state = iplDirectEffectGetTail(
             static_cast<IPLDirectEffect>(sajni::asPointer(effectPeer)),
             static_cast<IPLAudioBuffer*>(sajni::asPointer(outPeer)));
@@ -77,7 +77,7 @@ Java_net_sixik_steamaudio_DirectEffect_nGetTail(JNIEnv*, jclass, jlong effectPee
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_DirectEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_DirectEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLDirectEffect effect = static_cast<IPLDirectEffect>(sajni::asPointer(effectPeer));
     iplDirectEffectRelease(&effect);
 }

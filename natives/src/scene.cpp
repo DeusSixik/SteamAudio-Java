@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_Scene_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint type) {
+Java_net_sixik_steamaudio_geometry_Scene_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint type) {
     IPLSceneSettings settings{};
     settings.type = static_cast<IPLSceneType>(type);
     settings.closestHitCallback = nullptr;
@@ -26,18 +26,18 @@ Java_net_sixik_steamaudio_Scene_nCreate(JNIEnv* env, jclass, jlong contextPeer, 
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Scene_nCommit(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_geometry_Scene_nCommit(JNIEnv*, jclass, jlong peer) {
     iplSceneCommit(static_cast<IPLScene>(sajni::asPointer(peer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Scene_nSave(JNIEnv*, jclass, jlong peer, jlong destinationPeer) {
+Java_net_sixik_steamaudio_geometry_Scene_nSave(JNIEnv*, jclass, jlong peer, jlong destinationPeer) {
     iplSceneSave(static_cast<IPLScene>(sajni::asPointer(peer)),
                  static_cast<IPLSerializedObject>(sajni::asPointer(destinationPeer)));
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_Scene_nLoad(JNIEnv* env, jclass, jlong contextPeer, jint type, jlong sourcePeer) {
+Java_net_sixik_steamaudio_geometry_Scene_nLoad(JNIEnv* env, jclass, jlong contextPeer, jint type, jlong sourcePeer) {
     IPLSceneSettings settings{};
     settings.type = static_cast<IPLSceneType>(type);
     settings.closestHitCallback = nullptr;
@@ -60,7 +60,7 @@ Java_net_sixik_steamaudio_Scene_nLoad(JNIEnv* env, jclass, jlong contextPeer, ji
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Scene_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_geometry_Scene_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLScene scene = static_cast<IPLScene>(sajni::asPointer(peer));
     iplSceneRelease(&scene);
 }

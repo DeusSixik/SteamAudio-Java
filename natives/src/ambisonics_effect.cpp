@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_AmbisonicsEncodeEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_AmbisonicsEncodeEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                          jint frameSize, jint maxOrder) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -25,7 +25,7 @@ Java_net_sixik_steamaudio_AmbisonicsEncodeEffect_nCreate(JNIEnv* env, jclass, jl
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_AmbisonicsEncodeEffect_nApply(JNIEnv*, jclass, jlong effectPeer,
+Java_net_sixik_steamaudio_effects_AmbisonicsEncodeEffect_nApply(JNIEnv*, jclass, jlong effectPeer,
                                                         jfloat dirX, jfloat dirY, jfloat dirZ, jint order,
                                                         jlong inPeer, jlong outPeer) {
     IPLAmbisonicsEncodeEffectParams params{};
@@ -41,13 +41,33 @@ Java_net_sixik_steamaudio_AmbisonicsEncodeEffect_nApply(JNIEnv*, jclass, jlong e
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AmbisonicsEncodeEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_AmbisonicsEncodeEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLAmbisonicsEncodeEffect effect = static_cast<IPLAmbisonicsEncodeEffect>(sajni::asPointer(effectPeer));
     iplAmbisonicsEncodeEffectRelease(&effect);
 }
 
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsEncodeEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+    iplAmbisonicsEncodeEffectReset(static_cast<IPLAmbisonicsEncodeEffect>(sajni::asPointer(effectPeer)));
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsEncodeEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+    IPLint32 tailSize = iplAmbisonicsEncodeEffectGetTailSize(
+            static_cast<IPLAmbisonicsEncodeEffect>(sajni::asPointer(effectPeer)));
+    return static_cast<jint>(tailSize);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsEncodeEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+    IPLAudioEffectState state = iplAmbisonicsEncodeEffectGetTail(
+            static_cast<IPLAmbisonicsEncodeEffect>(sajni::asPointer(effectPeer)),
+            static_cast<IPLAudioBuffer*>(sajni::asPointer(outPeer)));
+    return static_cast<jint>(state);
+}
+
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_AmbisonicsRotationEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_AmbisonicsRotationEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                            jint frameSize, jint maxOrder) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -67,7 +87,7 @@ Java_net_sixik_steamaudio_AmbisonicsRotationEffect_nCreate(JNIEnv* env, jclass, 
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_AmbisonicsRotationEffect_nApply(JNIEnv*, jclass, jlong effectPeer,
+Java_net_sixik_steamaudio_effects_AmbisonicsRotationEffect_nApply(JNIEnv*, jclass, jlong effectPeer,
                                                           jfloat listenerX, jfloat listenerY, jfloat listenerZ,
                                                           jfloat aheadX, jfloat aheadY, jfloat aheadZ,
                                                           jfloat upX, jfloat upY, jfloat upZ,
@@ -87,13 +107,33 @@ Java_net_sixik_steamaudio_AmbisonicsRotationEffect_nApply(JNIEnv*, jclass, jlong
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AmbisonicsRotationEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_AmbisonicsRotationEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLAmbisonicsRotationEffect effect = static_cast<IPLAmbisonicsRotationEffect>(sajni::asPointer(effectPeer));
     iplAmbisonicsRotationEffectRelease(&effect);
 }
 
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsRotationEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+    iplAmbisonicsRotationEffectReset(static_cast<IPLAmbisonicsRotationEffect>(sajni::asPointer(effectPeer)));
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsRotationEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+    IPLint32 tailSize = iplAmbisonicsRotationEffectGetTailSize(
+            static_cast<IPLAmbisonicsRotationEffect>(sajni::asPointer(effectPeer)));
+    return static_cast<jint>(tailSize);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsRotationEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+    IPLAudioEffectState state = iplAmbisonicsRotationEffectGetTail(
+            static_cast<IPLAmbisonicsRotationEffect>(sajni::asPointer(effectPeer)),
+            static_cast<IPLAudioBuffer*> (sajni::asPointer(outPeer)));
+    return static_cast<jint>(state);
+}
+
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_AmbisonicsPanningEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_AmbisonicsPanningEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                           jint frameSize, jint speakerLayoutType, jint maxOrder) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -116,7 +156,7 @@ Java_net_sixik_steamaudio_AmbisonicsPanningEffect_nCreate(JNIEnv* env, jclass, j
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_AmbisonicsPanningEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jint order,
+Java_net_sixik_steamaudio_effects_AmbisonicsPanningEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jint order,
                                                          jlong inPeer, jlong outPeer) {
     IPLAmbisonicsPanningEffectParams params{};
     params.order = static_cast<IPLint32>(order);
@@ -130,13 +170,33 @@ Java_net_sixik_steamaudio_AmbisonicsPanningEffect_nApply(JNIEnv*, jclass, jlong 
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AmbisonicsPanningEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_AmbisonicsPanningEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLAmbisonicsPanningEffect effect = static_cast<IPLAmbisonicsPanningEffect>(sajni::asPointer(effectPeer));
     iplAmbisonicsPanningEffectRelease(&effect);
 }
 
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsPanningEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+    iplAmbisonicsPanningEffectReset(static_cast<IPLAmbisonicsPanningEffect>(sajni::asPointer(effectPeer)));
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsPanningEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+    IPLint32 tailSize = iplAmbisonicsPanningEffectGetTailSize(
+            static_cast<IPLAmbisonicsPanningEffect>(sajni::asPointer(effectPeer)));
+    return static_cast<jint>(tailSize);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsPanningEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+    IPLAudioEffectState state = iplAmbisonicsPanningEffectGetTail(
+            static_cast<IPLAmbisonicsPanningEffect>(sajni::asPointer(effectPeer)),
+            static_cast<IPLAudioBuffer*> (sajni::asPointer(outPeer)));
+    return static_cast<jint>(state);
+}
+
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_AmbisonicsBinauralEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_AmbisonicsBinauralEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                            jint frameSize, jlong hrtfPeer, jint maxOrder) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -157,7 +217,7 @@ Java_net_sixik_steamaudio_AmbisonicsBinauralEffect_nCreate(JNIEnv* env, jclass, 
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_AmbisonicsBinauralEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong contextPeer,
+Java_net_sixik_steamaudio_effects_AmbisonicsBinauralEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong contextPeer,
                                                           jlong hrtfPeer, jint order, jlong inPeer, jlong outPeer) {
     IPLAmbisonicsBinauralEffectParams params{};
     params.hrtf = static_cast<IPLHRTF>(sajni::asPointer(hrtfPeer));
@@ -172,9 +232,94 @@ Java_net_sixik_steamaudio_AmbisonicsBinauralEffect_nApply(JNIEnv*, jclass, jlong
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AmbisonicsBinauralEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_AmbisonicsBinauralEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLAmbisonicsBinauralEffect effect = static_cast<IPLAmbisonicsBinauralEffect>(sajni::asPointer(effectPeer));
     iplAmbisonicsBinauralEffectRelease(&effect);
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsBinauralEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+    iplAmbisonicsBinauralEffectReset(static_cast<IPLAmbisonicsBinauralEffect>(sajni::asPointer(effectPeer)));
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsBinauralEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+    IPLint32 tailSize = iplAmbisonicsBinauralEffectGetTailSize(
+            static_cast<IPLAmbisonicsBinauralEffect>(sajni::asPointer(effectPeer)));
+    return static_cast<jint>(tailSize);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsBinauralEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+    IPLAudioEffectState state = iplAmbisonicsBinauralEffectGetTail(
+            static_cast<IPLAmbisonicsBinauralEffect>(sajni::asPointer(effectPeer)),
+            static_cast<IPLAudioBuffer*> (sajni::asPointer(outPeer)));
+    return static_cast<jint>(state);
+}
+
+
+
+JNIEXPORT jlong JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsDecodeEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+                                                                 jint frameSize, jint speakerLayoutType, jint maxOrder) {
+    IPLAudioSettings audioSettings{};
+    audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
+    audioSettings.frameSize = static_cast<IPLint32>(frameSize);
+
+    IPLAmbisonicsDecodeEffectSettings effectSettings{};
+    effectSettings.speakerLayout.type = static_cast<IPLSpeakerLayoutType>(speakerLayoutType);
+    effectSettings.speakerLayout.numSpeakers = 0;
+    effectSettings.speakerLayout.speakers = nullptr;
+    effectSettings.maxOrder = static_cast<IPLint32>(maxOrder);
+
+    IPLAmbisonicsDecodeEffect effect = nullptr;
+    IPLerror status = iplAmbisonicsDecodeEffectCreate(sajni::asContext(contextPeer), &audioSettings,
+                                                      &effectSettings, &effect);
+    if (status != IPL_STATUS_SUCCESS) {
+        sajni::throwSteamAudioException(env, status);
+        return 0;
+    }
+    return sajni::asPeer(effect);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsDecodeEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jint order,
+                                                                jlong inPeer, jlong outPeer) {
+    IPLAmbisonicsDecodeEffectParams params{};
+    params.order = static_cast<IPLint32>(order);
+
+    IPLAudioEffectState state = iplAmbisonicsDecodeEffectApply(
+            static_cast<IPLAmbisonicsDecodeEffect>(sajni::asPointer(effectPeer)),
+            &params,
+            static_cast<IPLAudioBuffer*>(sajni::asPointer(inPeer)),
+            static_cast<IPLAudioBuffer*>(sajni::asPointer(outPeer)));
+    return static_cast<jint>(state);
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsDecodeEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+    iplAmbisonicsDecodeEffectReset(static_cast<IPLAmbisonicsDecodeEffect>(sajni::asPointer(effectPeer)));
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsDecodeEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+    IPLint32 tailSize = iplAmbisonicsDecodeEffectGetTailSize(
+            static_cast<IPLAmbisonicsDecodeEffect>(sajni::asPointer(effectPeer)));
+    return static_cast<jint>(tailSize);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsDecodeEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+    IPLAudioEffectState state = iplAmbisonicsDecodeEffectGetTail(
+            static_cast<IPLAmbisonicsDecodeEffect>(sajni::asPointer(effectPeer)),
+            static_cast<IPLAudioBuffer*>(sajni::asPointer(outPeer)));
+    return static_cast<jint>(state);
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_effects_AmbisonicsDecodeEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+    IPLAmbisonicsDecodeEffect effect = static_cast<IPLAmbisonicsDecodeEffect>(sajni::asPointer(effectPeer));
+    iplAmbisonicsDecodeEffectRelease(&effect);
 }
 
 #ifdef __cplusplus

@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_Scene_nCreateStaticMesh(JNIEnv* env, jclass, jlong scenePeer,
+Java_net_sixik_steamaudio_geometry_Scene_nCreateStaticMesh(JNIEnv* env, jclass, jlong scenePeer,
                                                   jint numVertices, jint numTriangles, jint numMaterials,
                                                   jobject vertices, jobject triangles,
                                                   jobject materialIndices, jobject materials) {
@@ -40,19 +40,19 @@ Java_net_sixik_steamaudio_Scene_nCreateStaticMesh(JNIEnv* env, jclass, jlong sce
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_StaticMesh_nAdd(JNIEnv*, jclass, jlong peer, jlong scenePeer) {
+Java_net_sixik_steamaudio_geometry_StaticMesh_nAdd(JNIEnv*, jclass, jlong peer, jlong scenePeer) {
     iplStaticMeshAdd(static_cast<IPLStaticMesh>(sajni::asPointer(peer)),
                      static_cast<IPLScene>(sajni::asPointer(scenePeer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_StaticMesh_nRemove(JNIEnv*, jclass, jlong peer, jlong scenePeer) {
+Java_net_sixik_steamaudio_geometry_StaticMesh_nRemove(JNIEnv*, jclass, jlong peer, jlong scenePeer) {
     iplStaticMeshRemove(static_cast<IPLStaticMesh>(sajni::asPointer(peer)),
                         static_cast<IPLScene>(sajni::asPointer(scenePeer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_StaticMesh_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_geometry_StaticMesh_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLStaticMesh staticMesh = static_cast<IPLStaticMesh>(sajni::asPointer(peer));
     iplStaticMeshRelease(&staticMesh);
 }

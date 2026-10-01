@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_HRTF_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate, jint frameSize,
+Java_net_sixik_steamaudio_audio_HRTF_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate, jint frameSize,
                                        jint type, jfloat volume, jint normType) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -29,13 +29,13 @@ Java_net_sixik_steamaudio_HRTF_nCreate(JNIEnv* env, jclass, jlong contextPeer, j
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_HRTF_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_audio_HRTF_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLHRTF hrtf = static_cast<IPLHRTF>(sajni::asPointer(peer));
     iplHRTFRelease(&hrtf);
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_HRTF_nCreateSofaFile(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_audio_HRTF_nCreateSofaFile(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                jint frameSize, jfloat volume, jint normType, jstring sofaFileName) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -68,7 +68,7 @@ Java_net_sixik_steamaudio_HRTF_nCreateSofaFile(JNIEnv* env, jclass, jlong contex
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_HRTF_nCreateSofaData(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_audio_HRTF_nCreateSofaData(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                jint frameSize, jfloat volume, jint normType, jbyteArray sofaData) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);

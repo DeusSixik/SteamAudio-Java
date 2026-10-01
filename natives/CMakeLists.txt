@@ -21,6 +21,7 @@ add_library(SteamAudioJni SHARED
         src/hrtf.cpp
         src/path_baker.cpp
         src/path_effect.cpp
+        src/panning_effect.cpp
         src/probe_batch.cpp
         src/reflection_effect.cpp
         src/reflection_mixer.cpp

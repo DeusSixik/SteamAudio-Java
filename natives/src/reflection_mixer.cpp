@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_ReflectionMixer_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_ReflectionMixer_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                   jint frameSize, jint type, jint irSize, jint numChannels) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -27,7 +27,7 @@ Java_net_sixik_steamaudio_ReflectionMixer_nCreate(JNIEnv* env, jclass, jlong con
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_ReflectionMixer_nApply(JNIEnv*, jclass, jlong peer, jlong outPeer, jlong sourcePeer) {
+Java_net_sixik_steamaudio_effects_ReflectionMixer_nApply(JNIEnv*, jclass, jlong peer, jlong outPeer, jlong sourcePeer) {
     IPLSimulationOutputs outputs{};
     iplSourceGetOutputs(static_cast<IPLSource>(sajni::asPointer(sourcePeer)),
                         IPL_SIMULATIONFLAGS_REFLECTIONS, &outputs);
@@ -41,12 +41,12 @@ Java_net_sixik_steamaudio_ReflectionMixer_nApply(JNIEnv*, jclass, jlong peer, jl
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ReflectionMixer_nReset(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_effects_ReflectionMixer_nReset(JNIEnv*, jclass, jlong peer) {
     iplReflectionMixerReset(static_cast<IPLReflectionMixer>(sajni::asPointer(peer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ReflectionMixer_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_effects_ReflectionMixer_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLReflectionMixer mixer = static_cast<IPLReflectionMixer>(sajni::asPointer(peer));
     iplReflectionMixerRelease(&mixer);
 }

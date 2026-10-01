@@ -15,14 +15,23 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
+import net.sixik.steamaudio.audio.AudioBuffer;
+import net.sixik.steamaudio.audio.HRTF;
+import net.sixik.steamaudio.core.Context;
+import net.sixik.steamaudio.core.SteamAudio;
+import net.sixik.steamaudio.core.Vector3;
+import net.sixik.steamaudio.effects.BinauralEffect;
+import net.sixik.steamaudio.effects.DirectEffect;
+
+
 /**
- * JMH-бенчмарки хот-паса JNI-биндинга Steam Audio.
+ * JMH benchmarks for the hot path of the Steam Audio JNI binding.
  * <p>
- * Замеряются: бинауральный рендеринг (float- и Vector3-перегрузки),
- * direct-эффект, интерливинг/деинтерливинг аудио-буферов и расчет
- * относительного направления в zero-alloc и аллоцирующей версиях.
- * Профиль gc проверяет, что все пути остаются без аллокаций
- * ({@code alloc.rate.norm} должен быть ~0 B/op).
+ * Benchmarked: binaural rendering (float- and Vector3-based overloads),
+ * the direct effect, interleaving/deinterleaving of audio buffers, and
+ * relative direction calculation in zero-alloc and allocating versions.
+ * The gc profile verifies that all paths remain allocation-free
+ * ({@code alloc.rate.norm} should be ~0 B/op).
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -44,8 +53,8 @@ public class SteamAudioBenchmark {
     private AudioBuffer outStereo;
     private AudioBuffer outMono;
 
-    /** Преаллоцированные входные данные и выходные массивы — сам бенчмарк
-     * не должен аллоцировать ничего. */
+    /** Preallocated input data and output arrays — the benchmark itself
+     * must not allocate anything. */
     private Vector3 direction;
     private Vector3 sourcePosition;
     private Vector3 listenerPosition;
@@ -80,8 +89,8 @@ public class SteamAudioBenchmark {
 
         out3 = new float[3];
 
-        // Правдоподобные результаты direct-симуляции: att 1/3, воздух/директива/
-        // окклюзия/transmission — нейтральные единицы.
+        // Plausible direct simulation results: att 1/3, air absorption/directivity/
+        // occlusion/transmission — neutral units.
         directOutputs = new float[]{1.0f / 3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
         interleavedStereo = new float[2 * FRAME_SIZE];
@@ -108,7 +117,7 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Бинауральный рендеринг, перегрузка с примитивами.
+     * Binaural rendering, primitive-based overload.
      */
     @Benchmark
     public int binauralApply() {
@@ -117,7 +126,7 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Бинауральный рендеринг, перегрузка с мутабельным Vector3.
+     * Binaural rendering, mutable Vector3 overload.
      */
     @Benchmark
     public int binauralApplyVector3() {
@@ -126,7 +135,7 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Direct-эффект с расплющенными параметрами.
+     * Direct effect with flattened parameters.
      */
     @Benchmark
     public int directEffectApply() {
@@ -136,7 +145,7 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Интерливинг стерео-фрейма из нативного буфера в Java-массив.
+     * Interleaving a stereo frame from the native buffer into a Java array.
      */
     @Benchmark
     public void interleaveStereo() {
@@ -144,7 +153,7 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Деинтерливинг моно-фрейма из Java-массива в нативный буфер.
+     * Deinterleaving a mono frame from a Java array into the native buffer.
      */
     @Benchmark
     public void deinterleaveMono() {
@@ -152,7 +161,7 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Расчет относительного направления: zero-alloc версия.
+     * Relative direction calculation: zero-alloc version.
      */
     @Benchmark
     public void relativeDirectionZeroAlloc() {
@@ -160,9 +169,9 @@ public class SteamAudioBenchmark {
     }
 
     /**
-     * Расчет относительного направления: аллоцирующая convenience-версия.
-     * Сравнение с {@link #relativeDirectionZeroAlloc()} показывает цену
-     * аллокации + Vector3-конструкции.
+     * Relative direction calculation: allocating convenience version.
+     * Comparing with {@link #relativeDirectionZeroAlloc()} shows the cost of
+     * allocation + Vector3 construction.
      */
     @Benchmark
     public Vector3 relativeDirectionAllocating() {

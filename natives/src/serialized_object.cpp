@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_SerializedObject_nCreate(JNIEnv* env, jclass, jlong contextPeer) {
+Java_net_sixik_steamaudio_core_SerializedObject_nCreate(JNIEnv* env, jclass, jlong contextPeer) {
     IPLSerializedObjectSettings settings{};
     settings.data = nullptr;
     settings.size = 0;
@@ -20,13 +20,13 @@ Java_net_sixik_steamaudio_SerializedObject_nCreate(JNIEnv* env, jclass, jlong co
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_SerializedObject_nGetSize(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_core_SerializedObject_nGetSize(JNIEnv*, jclass, jlong peer) {
     IPLsize size = iplSerializedObjectGetSize(static_cast<IPLSerializedObject>(sajni::asPointer(peer)));
     return static_cast<jlong>(size);
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_SerializedObject_nGetData(JNIEnv* env, jclass, jlong peer, jbyteArray out) {
+Java_net_sixik_steamaudio_core_SerializedObject_nGetData(JNIEnv* env, jclass, jlong peer, jbyteArray out) {
     auto serializedObject = static_cast<IPLSerializedObject>(sajni::asPointer(peer));
 
     IPLsize size = iplSerializedObjectGetSize(serializedObject);
@@ -39,7 +39,7 @@ Java_net_sixik_steamaudio_SerializedObject_nGetData(JNIEnv* env, jclass, jlong p
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_SerializedObject_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_core_SerializedObject_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLSerializedObject serializedObject = static_cast<IPLSerializedObject>(sajni::asPointer(peer));
     iplSerializedObjectRelease(&serializedObject);
 }

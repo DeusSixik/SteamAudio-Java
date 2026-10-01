@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_ProbeArray_nCreate(JNIEnv* env, jclass, jlong contextPeer) {
+Java_net_sixik_steamaudio_simulation_ProbeArray_nCreate(JNIEnv* env, jclass, jlong contextPeer) {
     IPLProbeArray probeArray = nullptr;
     IPLerror status = iplProbeArrayCreate(sajni::asContext(contextPeer), &probeArray);
     if (status != IPL_STATUS_SUCCESS) {
@@ -16,7 +16,7 @@ Java_net_sixik_steamaudio_ProbeArray_nCreate(JNIEnv* env, jclass, jlong contextP
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeArray_nGenerateProbes(JNIEnv* env, jclass, jlong peer, jlong scenePeer, jint type,
+Java_net_sixik_steamaudio_simulation_ProbeArray_nGenerateProbes(JNIEnv* env, jclass, jlong peer, jlong scenePeer, jint type,
                                                      jfloat spacing, jfloat height, jfloatArray transform) {
     IPLProbeGenerationParams params{};
     params.type = static_cast<IPLProbeGenerationType>(type);
@@ -48,19 +48,19 @@ Java_net_sixik_steamaudio_ProbeArray_nGenerateProbes(JNIEnv* env, jclass, jlong 
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_ProbeArray_nGetNumProbes(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_simulation_ProbeArray_nGetNumProbes(JNIEnv*, jclass, jlong peer) {
     IPLint32 numProbes = iplProbeArrayGetNumProbes(static_cast<IPLProbeArray>(sajni::asPointer(peer)));
     return static_cast<jint>(numProbes);
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeArray_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_simulation_ProbeArray_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLProbeArray probeArray = static_cast<IPLProbeArray>(sajni::asPointer(peer));
     iplProbeArrayRelease(&probeArray);
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nCreate(JNIEnv* env, jclass, jlong contextPeer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nCreate(JNIEnv* env, jclass, jlong contextPeer) {
     IPLProbeBatch probeBatch = nullptr;
     IPLerror status = iplProbeBatchCreate(sajni::asContext(contextPeer), &probeBatch);
     if (status != IPL_STATUS_SUCCESS) {
@@ -71,13 +71,13 @@ Java_net_sixik_steamaudio_ProbeBatch_nCreate(JNIEnv* env, jclass, jlong contextP
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nAddProbeArray(JNIEnv*, jclass, jlong peer, jlong probeArrayPeer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nAddProbeArray(JNIEnv*, jclass, jlong peer, jlong probeArrayPeer) {
     iplProbeBatchAddProbeArray(static_cast<IPLProbeBatch>(sajni::asPointer(peer)),
                                static_cast<IPLProbeArray>(sajni::asPointer(probeArrayPeer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nAddProbe(JNIEnv*, jclass, jlong peer,
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nAddProbe(JNIEnv*, jclass, jlong peer,
                                                jfloat centerX, jfloat centerY, jfloat centerZ, jfloat radius) {
     IPLSphere probe{};
     probe.center = IPLVector3{centerX, centerY, centerZ};
@@ -87,24 +87,24 @@ Java_net_sixik_steamaudio_ProbeBatch_nAddProbe(JNIEnv*, jclass, jlong peer,
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nCommit(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nCommit(JNIEnv*, jclass, jlong peer) {
     iplProbeBatchCommit(static_cast<IPLProbeBatch>(sajni::asPointer(peer)));
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nGetNumProbes(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nGetNumProbes(JNIEnv*, jclass, jlong peer) {
     IPLint32 numProbes = iplProbeBatchGetNumProbes(static_cast<IPLProbeBatch>(sajni::asPointer(peer)));
     return static_cast<jint>(numProbes);
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nSave(JNIEnv*, jclass, jlong peer, jlong destinationPeer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nSave(JNIEnv*, jclass, jlong peer, jlong destinationPeer) {
     iplProbeBatchSave(static_cast<IPLProbeBatch>(sajni::asPointer(peer)),
                       static_cast<IPLSerializedObject>(sajni::asPointer(destinationPeer)));
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nLoad(JNIEnv* env, jclass, jlong contextPeer, jlong sourcePeer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nLoad(JNIEnv* env, jclass, jlong contextPeer, jlong sourcePeer) {
     IPLProbeBatch probeBatch = nullptr;
     IPLerror status = iplProbeBatchLoad(sajni::asContext(contextPeer),
                                         static_cast<IPLSerializedObject>(sajni::asPointer(sourcePeer)),
@@ -117,7 +117,7 @@ Java_net_sixik_steamaudio_ProbeBatch_nLoad(JNIEnv* env, jclass, jlong contextPee
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ProbeBatch_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLProbeBatch probeBatch = static_cast<IPLProbeBatch>(sajni::asPointer(peer));
     iplProbeBatchRelease(&probeBatch);
 }

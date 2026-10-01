@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_BinauralEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_BinauralEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                  jint frameSize, jlong hrtfPeer) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -25,7 +25,7 @@ Java_net_sixik_steamaudio_BinauralEffect_nCreate(JNIEnv* env, jclass, jlong cont
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_BinauralEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong contextPeer, jlong hrtfPeer,
+Java_net_sixik_steamaudio_effects_BinauralEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong contextPeer, jlong hrtfPeer,
                                                 jfloat dirX, jfloat dirY, jfloat dirZ,
                                                 jint interpolation, jfloat spatialBlend,
                                                 jlong inPeer, jlong outPeer) {
@@ -44,25 +44,25 @@ Java_net_sixik_steamaudio_BinauralEffect_nApply(JNIEnv*, jclass, jlong effectPee
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_BinauralEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_BinauralEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
     iplBinauralEffectReset(static_cast<IPLBinauralEffect>(sajni::asPointer(effectPeer)));
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_BinauralEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_BinauralEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
     IPLint32 tailSize = iplBinauralEffectGetTailSize(static_cast<IPLBinauralEffect>(sajni::asPointer(effectPeer)));
     return static_cast<jint>(tailSize);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_BinauralEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+Java_net_sixik_steamaudio_effects_BinauralEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
     IPLAudioEffectState state = iplBinauralEffectGetTail(static_cast<IPLBinauralEffect>(sajni::asPointer(effectPeer)),
                                                          static_cast<IPLAudioBuffer*>(sajni::asPointer(outPeer)));
     return static_cast<jint>(state);
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_BinauralEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_BinauralEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLBinauralEffect effect = static_cast<IPLBinauralEffect>(sajni::asPointer(effectPeer));
     iplBinauralEffectRelease(&effect);
 }

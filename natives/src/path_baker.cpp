@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_PathBaker_nBake(JNIEnv* env, jclass, jlong contextPeer, jlong scenePeer,
+Java_net_sixik_steamaudio_simulation_PathBaker_nBake(JNIEnv* env, jclass, jlong contextPeer, jlong scenePeer,
                                           jlong probeBatchPeer, jint numSamples, jfloat radius, jfloat threshold,
                                           jfloat visRange, jfloat pathRange, jint numThreads) {
     IPLPathBakeParams params{};
@@ -32,7 +32,7 @@ Java_net_sixik_steamaudio_PathBaker_nBake(JNIEnv* env, jclass, jlong contextPeer
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_PathBaker_nCancelBake(JNIEnv*, jclass, jlong contextPeer) {
+Java_net_sixik_steamaudio_simulation_PathBaker_nCancelBake(JNIEnv*, jclass, jlong contextPeer) {
     iplPathBakerCancelBake(sajni::asContext(contextPeer));
 }
 

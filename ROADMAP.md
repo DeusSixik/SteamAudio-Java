@@ -5,31 +5,31 @@ targeting Java 17+.
 
 ## API coverage
 
-Steam Audio 4.8.1 exposes **210 `ipl*` functions**. Covered: **~91 (43%)**.
+Steam Audio 4.8.1 exposes **210 `ipl*` functions**. Covered: **~130 (62%)**.
 
 ### Done
 
 | Area | Classes |
 |---|---|
-| Context & math | `core.Context`, `core.Vector3`, `core.SerializedObject` |
-| Audio buffers & HRTF | `audio.AudioBuffer`, `audio.HRTF` (+ SOFA file/memory loading) |
+| Context & math | `core.Context` (+ `calculateDistanceAttenuation` / `calculateAirAbsorption` / `calculateDirectivity`), `core.Vector3`, `core.SerializedObject` |
+| Audio buffers & HRTF | `audio.AudioBuffer`, `audio.HRTF` (+ SOFA file/memory loading), `audio.SpeakerLayout` |
 | Geometry | `geometry.Scene`, `geometry.StaticMesh`, `geometry.Material` |
 | Simulation | `simulation.Simulator`, `simulation.Source`, `simulation.ProbeArray`, `simulation.ProbeBatch`, `simulation.PathBaker` |
-| Effects | `effects.BinauralEffect`, `effects.DirectEffect`, `effects.ReflectionEffect`, `effects.ReflectionMixer`, `effects.PathEffect`, `effects.Ambisonics{Encode,Rotation,Panning,Binaural}Effect` |
+| Effects | `effects.BinauralEffect`, `effects.DirectEffect`, `effects.PanningEffect`, `effects.VirtualSurroundEffect`, `effects.ReflectionEffect`, `effects.ReflectionMixer`, `effects.PathEffect`, `effects.Ambisonics{Encode,Rotation,Panning,Binaural,Decode}Effect` (all with full reset/getTail lifecycle) |
 | Loader | Auto-build via CMake (`configureNatives`/`buildNatives`), natives bundled into the jar, extraction to a content-hashed temp dir with `-Dsteamaudio.natives` override |
 | Benchmarks | `src/jmh` (`SteamAudioBenchmark`), zero-alloc verified via `-prof gc` |
 
-### P1 — audio rendering (recommended next)
+### P1 — audio rendering: DONE
 
-Completes the library from "simulation engine" to "full audio pipeline" (~35 functions):
+Completed: `PanningEffect`, `VirtualSurroundEffect` (requires an `HRTF` in 4.8.1),
+`AmbisonicsDecodeEffect`, the three compute helpers on `Context`, and the full
+reset/getTailSize/getTail lifecycle for all ambisonics effects.
 
-1. **`PanningEffect`** (7) — point source → speaker layout, for non-HRTF rendering.
-2. **`VirtualSurroundEffect`** (7) — stereo/5.1/7.1 → binaural, for ready-made content.
-3. **`AmbisonicsDecodeEffect`** (7) — ambisonics → speakers (mirror of the encode path).
-4. **Compute helpers** (3) — `iplDistanceAttenuationCalculate`, `iplAirAbsorptionCalculate`, `iplDirectivityCalculate` (pure functions, no simulator needed; useful for tooling/validation).
-5. **Lifecycle completion for ambisonics effects** (~12) — `getTailSize`/`getTail`/`reset`/`retain` for the four already-wrapped ambisonics effects.
+Note: `AmbisonicsEncodeEffect` and `PanningEffect` crossfade from the previous
+frame's direction; after creation/reset the first `apply` is a warm-up pass,
+measure from the second frame (see `P1EffectsTest`).
 
-### P2 — useful extensions
+### P2 — useful extensions (next)
 
 6. **`AudioBuffer` ops** (3) — `iplAudioBufferMix`, `iplAudioBufferDownmix`, `iplAudioBufferConvertAmbisonics`.
 7. **`InstancedMesh`** (6) — moving geometry (`create`/`add`/`remove`/`updateTransform`).

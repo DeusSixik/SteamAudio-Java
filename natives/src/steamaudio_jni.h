@@ -55,7 +55,7 @@ inline const char* describeError(IPLerror status) {
  * the given IPLerror status. Pending exception is left to be handled by the JVM.
  */
 inline void throwSteamAudioException(JNIEnv* env, IPLerror status) {
-    jclass cls = env->FindClass("net/sixik/steamaudio/SteamAudioException");
+    jclass cls = env->FindClass("net/sixik/steamaudio/core/SteamAudioException");
     if (cls == nullptr) {
         return;
     }

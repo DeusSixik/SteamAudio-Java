@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_Source_nCreate(JNIEnv* env, jclass, jlong simulatorPeer, jint simulationFlags) {
+Java_net_sixik_steamaudio_simulation_Source_nCreate(JNIEnv* env, jclass, jlong simulatorPeer, jint simulationFlags) {
     IPLSourceSettings settings{};
     settings.flags = static_cast<IPLSimulationFlags>(simulationFlags);
 
@@ -20,19 +20,19 @@ Java_net_sixik_steamaudio_Source_nCreate(JNIEnv* env, jclass, jlong simulatorPee
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nAdd(JNIEnv*, jclass, jlong peer, jlong simulatorPeer) {
+Java_net_sixik_steamaudio_simulation_Source_nAdd(JNIEnv*, jclass, jlong peer, jlong simulatorPeer) {
     iplSourceAdd(static_cast<IPLSource>(sajni::asPointer(peer)),
                  static_cast<IPLSimulator>(sajni::asPointer(simulatorPeer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nRemove(JNIEnv*, jclass, jlong peer, jlong simulatorPeer) {
+Java_net_sixik_steamaudio_simulation_Source_nRemove(JNIEnv*, jclass, jlong peer, jlong simulatorPeer) {
     iplSourceRemove(static_cast<IPLSource>(sajni::asPointer(peer)),
                     static_cast<IPLSimulator>(sajni::asPointer(simulatorPeer)));
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nSetDirectInputs(JNIEnv* env, jclass, jlong peer, jint directFlags,
+Java_net_sixik_steamaudio_simulation_Source_nSetDirectInputs(JNIEnv* env, jclass, jlong peer, jint directFlags,
                                                   jfloat sourceX, jfloat sourceY, jfloat sourceZ,
                                                   jfloat aheadX, jfloat aheadY, jfloat aheadZ,
                                                   jfloat upX, jfloat upY, jfloat upZ,
@@ -45,15 +45,14 @@ Java_net_sixik_steamaudio_Source_nSetDirectInputs(JNIEnv* env, jclass, jlong pee
     inputs.directFlags = static_cast<IPLDirectSimulationFlags>(directFlags);
     inputs.source = sajni::makeCoordinateSpace(sourceData);
 
-    // Модель затухания по расстоянию по умолчанию: обратная дистанция
-    // с плато 1 м.
+    // Default distance attenuation model: inverse distance with a 1 m plateau.
     inputs.distanceAttenuationModel.type = IPL_DISTANCEATTENUATIONTYPE_DEFAULT;
     inputs.distanceAttenuationModel.minDistance = 1.0f;
     inputs.distanceAttenuationModel.callback = nullptr;
     inputs.distanceAttenuationModel.userData = nullptr;
     inputs.distanceAttenuationModel.dirty = IPL_FALSE;
 
-    // Модель поглощения воздухом по умолчанию.
+    // Default air absorption model.
     inputs.airAbsorptionModel.type = IPL_AIRABSORPTIONTYPE_DEFAULT;
     inputs.airAbsorptionModel.coefficients[0] = 1.0f;
     inputs.airAbsorptionModel.coefficients[1] = 1.0f;
@@ -62,7 +61,7 @@ Java_net_sixik_steamaudio_Source_nSetDirectInputs(JNIEnv* env, jclass, jlong pee
     inputs.airAbsorptionModel.userData = nullptr;
     inputs.airAbsorptionModel.dirty = IPL_FALSE;
 
-    // Всенаправленный источник (чистый омни, без диполя).
+    // Omnidirectional source (pure omni, no dipole).
     inputs.directivity.dipoleWeight = 0.0f;
     inputs.directivity.dipolePower = 1.0f;
     inputs.directivity.callback = nullptr;
@@ -97,7 +96,7 @@ Java_net_sixik_steamaudio_Source_nSetDirectInputs(JNIEnv* env, jclass, jlong pee
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nSetReflectionsInputs(JNIEnv* env, jclass, jlong peer, jfloatArray reverbScale) {
+Java_net_sixik_steamaudio_simulation_Source_nSetReflectionsInputs(JNIEnv* env, jclass, jlong peer, jfloatArray reverbScale) {
     jfloat* scaleData = static_cast<jfloat*>(env->GetPrimitiveArrayCritical(reverbScale, nullptr));
     if (scaleData == nullptr) {
         sajni::throwSteamAudioException(env, IPL_STATUS_OUTOFMEMORY);
@@ -154,7 +153,7 @@ Java_net_sixik_steamaudio_Source_nSetReflectionsInputs(JNIEnv* env, jclass, jlon
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nSetPathingInputs(JNIEnv* env, jclass, jlong peer, jlong probeBatchPeer,
+Java_net_sixik_steamaudio_simulation_Source_nSetPathingInputs(JNIEnv* env, jclass, jlong peer, jlong probeBatchPeer,
                                                    jint pathingOrder, jfloat visRadius, jfloat visThreshold,
                                                    jfloat visRange) {
     IPLSimulationInputs inputs{};
@@ -186,7 +185,7 @@ Java_net_sixik_steamaudio_Source_nSetPathingInputs(JNIEnv* env, jclass, jlong pe
     inputs.hybridReverbTransitionTime = 1.0f;
     inputs.hybridReverbOverlapPercent = 0.25f;
 
-    // Pathing использует запеченные в probe batch данные.
+    // Pathing uses the data baked into the probe batch.
     inputs.baked = IPL_TRUE;
     inputs.bakedDataIdentifier.type = IPL_BAKEDDATATYPE_PATHING;
     inputs.bakedDataIdentifier.variation = IPL_BAKEDDATAVARIATION_DYNAMIC;
@@ -207,7 +206,7 @@ Java_net_sixik_steamaudio_Source_nSetPathingInputs(JNIEnv* env, jclass, jlong pe
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nGetDirectOutputs(JNIEnv* env, jclass, jlong peer, jfloatArray out) {
+Java_net_sixik_steamaudio_simulation_Source_nGetDirectOutputs(JNIEnv* env, jclass, jlong peer, jfloatArray out) {
     IPLSimulationOutputs outputs{};
     iplSourceGetOutputs(static_cast<IPLSource>(sajni::asPointer(peer)),
                         IPL_SIMULATIONFLAGS_DIRECT, &outputs);
@@ -227,7 +226,7 @@ Java_net_sixik_steamaudio_Source_nGetDirectOutputs(JNIEnv* env, jclass, jlong pe
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_Source_nRelease(JNIEnv*, jclass, jlong peer) {
+Java_net_sixik_steamaudio_simulation_Source_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLSource source = static_cast<IPLSource>(sajni::asPointer(peer));
     iplSourceRelease(&source);
 }

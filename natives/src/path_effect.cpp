@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_PathEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_PathEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                              jint frameSize, jint maxOrder) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -30,7 +30,7 @@ Java_net_sixik_steamaudio_PathEffect_nCreate(JNIEnv* env, jclass, jlong contextP
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_PathEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong inPeer, jlong outPeer,
+Java_net_sixik_steamaudio_effects_PathEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong inPeer, jlong outPeer,
                                             jlong sourcePeer, jint order) {
     IPLSimulationOutputs outputs{};
     iplSourceGetOutputs(static_cast<IPLSource>(sajni::asPointer(sourcePeer)),
@@ -57,18 +57,18 @@ Java_net_sixik_steamaudio_PathEffect_nApply(JNIEnv*, jclass, jlong effectPeer, j
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_PathEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_PathEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
     iplPathEffectReset(static_cast<IPLPathEffect>(sajni::asPointer(effectPeer)));
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_PathEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_PathEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
     IPLint32 tailSize = iplPathEffectGetTailSize(static_cast<IPLPathEffect>(sajni::asPointer(effectPeer)));
     return static_cast<jint>(tailSize);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_PathEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
+Java_net_sixik_steamaudio_effects_PathEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer) {
     IPLAudioEffectState state = iplPathEffectGetTail(
             static_cast<IPLPathEffect>(sajni::asPointer(effectPeer)),
             static_cast<IPLAudioBuffer*>(sajni::asPointer(outPeer)));
@@ -76,7 +76,7 @@ Java_net_sixik_steamaudio_PathEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer,
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_PathEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_PathEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLPathEffect effect = static_cast<IPLPathEffect>(sajni::asPointer(effectPeer));
     iplPathEffectRelease(&effect);
 }

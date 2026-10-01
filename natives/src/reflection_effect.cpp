@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_ReflectionEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
+Java_net_sixik_steamaudio_effects_ReflectionEffect_nCreate(JNIEnv* env, jclass, jlong contextPeer, jint samplingRate,
                                                    jint frameSize, jint type, jint irSize, jint numChannels) {
     IPLAudioSettings audioSettings{};
     audioSettings.samplingRate = static_cast<IPLint32>(samplingRate);
@@ -27,7 +27,7 @@ Java_net_sixik_steamaudio_ReflectionEffect_nCreate(JNIEnv* env, jclass, jlong co
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_ReflectionEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong inPeer, jlong outPeer,
+Java_net_sixik_steamaudio_effects_ReflectionEffect_nApply(JNIEnv*, jclass, jlong effectPeer, jlong inPeer, jlong outPeer,
                                                   jlong sourcePeer, jlong mixerPeer) {
     IPLSimulationOutputs outputs{};
     iplSourceGetOutputs(static_cast<IPLSource>(sajni::asPointer(sourcePeer)),
@@ -44,19 +44,19 @@ Java_net_sixik_steamaudio_ReflectionEffect_nApply(JNIEnv*, jclass, jlong effectP
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ReflectionEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_ReflectionEffect_nReset(JNIEnv*, jclass, jlong effectPeer) {
     iplReflectionEffectReset(static_cast<IPLReflectionEffect>(sajni::asPointer(effectPeer)));
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_ReflectionEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_ReflectionEffect_nGetTailSize(JNIEnv*, jclass, jlong effectPeer) {
     IPLint32 tailSize = iplReflectionEffectGetTailSize(
             static_cast<IPLReflectionEffect>(sajni::asPointer(effectPeer)));
     return static_cast<jint>(tailSize);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_sixik_steamaudio_ReflectionEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer,
+Java_net_sixik_steamaudio_effects_ReflectionEffect_nGetTail(JNIEnv*, jclass, jlong effectPeer, jlong outPeer,
                                                     jlong mixerPeer) {
     IPLAudioEffectState state = iplReflectionEffectGetTail(
             static_cast<IPLReflectionEffect>(sajni::asPointer(effectPeer)),
@@ -66,7 +66,7 @@ Java_net_sixik_steamaudio_ReflectionEffect_nGetTail(JNIEnv*, jclass, jlong effec
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_ReflectionEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
+Java_net_sixik_steamaudio_effects_ReflectionEffect_nRelease(JNIEnv*, jclass, jlong effectPeer) {
     IPLReflectionEffect effect = static_cast<IPLReflectionEffect>(sajni::asPointer(effectPeer));
     iplReflectionEffectRelease(&effect);
 }

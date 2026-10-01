@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jlong JNICALL
-Java_net_sixik_steamaudio_AudioBuffer_nAllocate(JNIEnv* env, jclass, jlong contextPeer, jint numChannels, jint numSamples) {
+Java_net_sixik_steamaudio_audio_AudioBuffer_nAllocate(JNIEnv* env, jclass, jlong contextPeer, jint numChannels, jint numSamples) {
     auto buffer = static_cast<IPLAudioBuffer*>(std::malloc(sizeof(IPLAudioBuffer)));
     if (buffer == nullptr) {
         sajni::throwSteamAudioException(env, IPL_STATUS_OUTOFMEMORY);
@@ -27,14 +27,14 @@ Java_net_sixik_steamaudio_AudioBuffer_nAllocate(JNIEnv* env, jclass, jlong conte
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AudioBuffer_nFree(JNIEnv*, jclass, jlong contextPeer, jlong peer) {
+Java_net_sixik_steamaudio_audio_AudioBuffer_nFree(JNIEnv*, jclass, jlong contextPeer, jlong peer) {
     auto buffer = static_cast<IPLAudioBuffer*>(sajni::asPointer(peer));
     iplAudioBufferFree(sajni::asContext(contextPeer), buffer);
     std::free(buffer);
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AudioBuffer_nInterleave(JNIEnv* env, jclass, jlong contextPeer, jlong peer, jfloatArray dst) {
+Java_net_sixik_steamaudio_audio_AudioBuffer_nInterleave(JNIEnv* env, jclass, jlong contextPeer, jlong peer, jfloatArray dst) {
     auto buffer = static_cast<IPLAudioBuffer*>(sajni::asPointer(peer));
 
     jfloat* dstData = static_cast<jfloat*>(env->GetPrimitiveArrayCritical(dst, nullptr));
@@ -49,7 +49,7 @@ Java_net_sixik_steamaudio_AudioBuffer_nInterleave(JNIEnv* env, jclass, jlong con
 }
 
 JNIEXPORT void JNICALL
-Java_net_sixik_steamaudio_AudioBuffer_nDeinterleave(JNIEnv* env, jclass, jlong contextPeer, jlong peer, jfloatArray src) {
+Java_net_sixik_steamaudio_audio_AudioBuffer_nDeinterleave(JNIEnv* env, jclass, jlong contextPeer, jlong peer, jfloatArray src) {
     auto buffer = static_cast<IPLAudioBuffer*>(sajni::asPointer(peer));
 
     jfloat* srcData = static_cast<jfloat*>(env->GetPrimitiveArrayCritical(src, nullptr));
