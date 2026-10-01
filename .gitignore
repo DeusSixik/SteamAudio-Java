@@ -50,3 +50,6 @@ natives/cmake-build-debug/
 
 ### Bundled natives (copied by copyNatives task) ###
 src/main/resources/net/sixik/steamaudio/natives/
+
+### Steam Audio OBJ export artifacts
+steamaudio-test-scene*
