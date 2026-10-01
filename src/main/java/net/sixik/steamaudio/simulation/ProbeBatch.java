@@ -194,6 +194,24 @@ public final class ProbeBatch implements AutoCloseable {
     }
 
     /**
+     * Retrieves the baked energy field stored at a probe for a baked layer
+     * ({@code iplProbeBatchGetEnergyField}); the data is copied into the
+     * destination energy field, which must have matching dimensions.
+     *
+     * @param dataType   {@link #DATA_TYPE_REFLECTIONS} or {@link #DATA_TYPE_PATHING}
+     * @param variation  one of the {@code VARIATION_*} constants
+     * @param probeIndex index of the probe within the batch
+     * @param out        the energy field to copy into
+     */
+    public void getEnergyField(int dataType, int variation, int probeIndex, EnergyField out) {
+        requireOpen();
+        if (out == null || !out.isOpen()) {
+            throw new IllegalStateException("Destination EnergyField is closed");
+        }
+        nGetEnergyField(peer, dataType, variation, probeIndex, out.peerForChildren());
+    }
+
+    /**
      * Checks that the batch is open.
      *
      * @throws IllegalStateException if the batch is closed
@@ -328,4 +346,16 @@ public final class ProbeBatch implements AutoCloseable {
      * @param out        destination array (at least {@code IPL_NUM_BANDS})
      */
     private static native void nGetReverb(long peer, int dataType, int variation, int probeIndex, float[] out);
+
+    /**
+     * Retrieves a baked energy field via {@code iplProbeBatchGetEnergyField}.
+     *
+     * @param peer            opaque pointer of the batch
+     * @param dataType        baked data type ({@code IPLBakedDataType})
+     * @param variation       baked data variation ({@code IPLBakedDataVariation})
+     * @param probeIndex      index of the probe
+     * @param energyFieldPeer opaque pointer of the destination energy field
+     */
+    private static native void nGetEnergyField(long peer, int dataType, int variation, int probeIndex,
+                                               long energyFieldPeer);
 }

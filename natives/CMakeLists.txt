@@ -18,14 +18,18 @@ add_library(SteamAudioJni SHARED
         src/binaural_effect.cpp
         src/context.cpp
         src/direct_effect.cpp
+        src/energy_field.cpp
         src/hrtf.cpp
+        src/impulse_response.cpp
         src/instanced_mesh.cpp
         src/path_baker.cpp
         src/path_effect.cpp
         src/panning_effect.cpp
         src/probe_batch.cpp
+        src/reconstructor.cpp
         src/reflection_effect.cpp
         src/reflection_mixer.cpp
+        src/reflections_baker.cpp
         src/scene.cpp
         src/serialized_object.cpp
         src/simulator.cpp

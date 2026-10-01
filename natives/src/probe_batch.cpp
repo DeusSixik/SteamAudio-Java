@@ -54,6 +54,15 @@ Java_net_sixik_steamaudio_simulation_ProbeArray_nGetNumProbes(JNIEnv*, jclass, j
 }
 
 JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_simulation_ProbeArray_nGetProbe(JNIEnv* env, jclass, jlong peer, jint index, jfloatArray out) {
+    IPLSphere probe = iplProbeArrayGetProbe(static_cast<IPLProbeArray>(sajni::asPointer(peer)),
+                                            static_cast<IPLint32>(index));
+
+    jfloat values[4] = {probe.center.x, probe.center.y, probe.center.z, probe.radius};
+    env->SetFloatArrayRegion(out, 0, 4, values);
+}
+
+JNIEXPORT void JNICALL
 Java_net_sixik_steamaudio_simulation_ProbeArray_nRelease(JNIEnv*, jclass, jlong peer) {
     IPLProbeArray probeArray = static_cast<IPLProbeArray>(sajni::asPointer(peer));
     iplProbeArrayRelease(&probeArray);
@@ -159,6 +168,21 @@ Java_net_sixik_steamaudio_simulation_ProbeBatch_nGetReverb(JNIEnv* env, jclass, 
                            static_cast<IPLint32>(probeIndex), reverbTimes);
 
     env->SetFloatArrayRegion(out, 0, IPL_NUM_BANDS, reverbTimes);
+}
+
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_simulation_ProbeBatch_nGetEnergyField(JNIEnv*, jclass, jlong peer, jint dataType,
+                                                                jint variation, jint probeIndex,
+                                                                jlong energyFieldPeer) {
+    IPLBakedDataIdentifier identifier{};
+    identifier.type = static_cast<IPLBakedDataType>(dataType);
+    identifier.variation = static_cast<IPLBakedDataVariation>(variation);
+    identifier.endpointInfluence.center = IPLVector3{0.0f, 0.0f, 0.0f};
+    identifier.endpointInfluence.radius = 0.0f;
+
+    iplProbeBatchGetEnergyField(static_cast<IPLProbeBatch>(sajni::asPointer(peer)), &identifier,
+                                static_cast<IPLint32>(probeIndex),
+                                static_cast<IPLEnergyField>(sajni::asPointer(energyFieldPeer)));
 }
 
 #ifdef __cplusplus

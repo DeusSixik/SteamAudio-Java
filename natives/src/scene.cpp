@@ -36,6 +36,19 @@ Java_net_sixik_steamaudio_geometry_Scene_nSave(JNIEnv*, jclass, jlong peer, jlon
                  static_cast<IPLSerializedObject>(sajni::asPointer(destinationPeer)));
 }
 
+JNIEXPORT void JNICALL
+Java_net_sixik_steamaudio_geometry_Scene_nSaveOBJ(JNIEnv* env, jclass, jlong peer, jstring fileBaseName) {
+    const char* fileName = env->GetStringUTFChars(fileBaseName, nullptr);
+    if (fileName == nullptr) {
+        sajni::throwSteamAudioException(env, IPL_STATUS_FAILURE);
+        return;
+    }
+
+    iplSceneSaveOBJ(static_cast<IPLScene>(sajni::asPointer(peer)), fileName);
+
+    env->ReleaseStringUTFChars(fileBaseName, fileName);
+}
+
 JNIEXPORT jlong JNICALL
 Java_net_sixik_steamaudio_geometry_Scene_nLoad(JNIEnv* env, jclass, jlong contextPeer, jint type, jlong sourcePeer) {
     IPLSceneSettings settings{};

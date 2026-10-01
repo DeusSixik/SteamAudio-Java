@@ -163,6 +163,23 @@ public final class Scene implements AutoCloseable {
     }
 
     /**
+     * Exports the scene geometry to OBJ files ({@code iplSceneSaveOBJ}).
+     * Steam Audio writes {@code <fileBaseName>.obj} plus an MTL file with
+     * the same base name; each static mesh becomes a separate object.
+     *
+     * @param fileBaseName base file name without extension
+     */
+    public void saveOBJ(String fileBaseName) {
+        if (peer == 0) {
+            throw new IllegalStateException("Scene is closed");
+        }
+        if (fileBaseName == null || fileBaseName.isEmpty()) {
+            throw new IllegalArgumentException("fileBaseName must not be empty");
+        }
+        nSaveOBJ(peer, fileBaseName);
+    }
+
+    /**
      * Loads a scene from a serialized object
      * ({@code iplSceneLoad}).
      *
@@ -314,6 +331,14 @@ public final class Scene implements AutoCloseable {
      * @param destinationPeer opaque pointer of the serialized object
      */
     private static native void nSave(long peer, long destinationPeer);
+
+    /**
+     * Exports the scene to OBJ via {@code iplSceneSaveOBJ}.
+     *
+     * @param peer         opaque pointer of the scene
+     * @param fileBaseName base file name without extension
+     */
+    private static native void nSaveOBJ(long peer, String fileBaseName);
 
     /**
      * Loads a scene via {@code iplSceneLoad}.

@@ -84,6 +84,22 @@ public final class ProbeArray implements AutoCloseable {
     }
 
     /**
+     * Returns the sphere (center + radius) of the probe at the given index
+     * ({@code iplProbeArrayGetProbe}).
+     *
+     * @param index index of the probe
+     * @param out   array of at least 4 elements; receives
+     *              {@code (centerX, centerY, centerZ, radius)}
+     */
+    public void getProbe(int index, float[] out) {
+        requireOpen();
+        if (out.length < 4) {
+            throw new IllegalArgumentException("out must contain at least 4 elements");
+        }
+        nGetProbe(peer, index, out);
+    }
+
+    /**
      * Checks that the array is open.
      *
      * @throws IllegalStateException if the array is closed
@@ -143,6 +159,15 @@ public final class ProbeArray implements AutoCloseable {
      * @return the number of probes
      */
     private static native int nGetNumProbes(long peer);
+
+    /**
+     * Returns a probe sphere via {@code iplProbeArrayGetProbe}.
+     *
+     * @param peer  opaque pointer of the array
+     * @param index probe index
+     * @param out   destination array (at least 4 elements)
+     */
+    private static native void nGetProbe(long peer, int index, float[] out);
 
     /**
      * Releases the array via {@code iplProbeArrayRelease}.
