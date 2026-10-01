@@ -1,0 +1,112 @@
+name: build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Windows: build the JNI natives and run the full test suite against them.
+  natives-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure natives
+        run: cmake -S natives -B natives/build
+
+      - name: Build natives
+        run: cmake --build natives/build --config Release
+
+      - name: Run tests against the freshly built natives
+        run: ./gradlew.bat test --no-daemon --console=plain
+
+      - name: Upload Windows natives
+        uses: actions/upload-artifact@v4
+        with:
+          name: natives-windows-x64
+          path: |
+            natives/build/bin/Release/SteamAudioJni.dll
+            natives/build/bin/Release/phonon.dll
+          if-no-files-found: error
+
+  # Linux: build the JNI natives and run the full test suite against them.
+  # ubuntu-22.04 pins an older glibc so the produced .so files run on a wide
+  # range of distributions.
+  natives-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure natives
+        run: cmake -S natives -B natives/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build natives
+        run: cmake --build natives/build
+
+      - name: Run tests against the freshly built natives
+        run: |
+          chmod +x gradlew
+          ./gradlew test --no-daemon --console=plain
+
+      - name: Upload Linux natives
+        uses: actions/upload-artifact@v4
+        with:
+          name: natives-linux-x64
+          path: |
+            natives/build/bin/libSteamAudioJni.so
+            natives/build/bin/libphonon.so
+          if-no-files-found: error
+
+  # Assemble a single fat jar that bundles the Windows and Linux natives.
+  jar:
+    needs: [ natives-windows, natives-linux ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download Windows natives
+        uses: actions/download-artifact@v4
+        with:
+          name: natives-windows-x64
+          path: src/main/resources/net/sixik/steamaudio/natives/windows-x64
+
+      - name: Download Linux natives
+        uses: actions/download-artifact@v4
+        with:
+          name: natives-linux-x64
+          path: src/main/resources/net/sixik/steamaudio/natives/linux-x64
+
+      - name: Build jar
+        # Natives are staged from the artifacts, so the local native build
+        # chain is skipped.
+        run: |
+          chmod +x gradlew
+          ./gradlew jar --no-daemon --console=plain \
+            -x test -x configureNatives -x buildNatives -x copyNatives
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: SteamAudio-Java-jar
+          path: build/libs/*.jar
+          if-no-files-found: error

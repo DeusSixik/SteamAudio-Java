@@ -20,26 +20,39 @@ test {
     useJUnitPlatform()
 }
 
-def nativesResourceDir = file('src/main/resources/net/sixik/steamaudio/natives/windows-x64')
+def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
+// MSVC (multi-config) кладет DLL в bin/Release; Linux single-config — в bin.
+def nativesBuildBin = isWindows ? 'natives/build/bin/Release' : 'natives/build/bin'
+def nativeArtifacts = isWindows
+        ? ['SteamAudioJni.dll', 'phonon.dll']
+        : ['libSteamAudioJni.so', 'libphonon.so']
+def nativesPlatform = isWindows ? 'windows-x64' : 'linux-x64'
+def nativesResourceDir = file("src/main/resources/net/sixik/steamaudio/natives/${nativesPlatform}")
 
 tasks.register('configureNatives', Exec) {
     description = 'Configures the CMake build of the JNI natives'
-    commandLine 'cmake', '-S', 'natives', '-B', 'natives/build'
+    if (isWindows) {
+        commandLine 'cmake', '-S', 'natives', '-B', 'natives/build'
+    } else {
+        commandLine 'cmake', '-S', 'natives', '-B', 'natives/build', '-DCMAKE_BUILD_TYPE=Release'
+    }
 }
 
 tasks.register('buildNatives', Exec) {
-    description = 'Builds the JNI natives via CMake (Release)'
+    description = 'Builds the JNI natives via CMake'
     dependsOn 'configureNatives'
-    commandLine 'cmake', '--build', 'natives/build', '--config', 'Release'
+    if (isWindows) {
+        commandLine 'cmake', '--build', 'natives/build', '--config', 'Release'
+    } else {
+        commandLine 'cmake', '--build', 'natives/build'
+    }
 }
 
 tasks.register('copyNatives', Copy) {
-    description = 'Copies built natives into the jar resources'
+    description = "Copies built natives (${nativesPlatform}) into the jar resources"
     dependsOn 'buildNatives'
-    from('natives/build/bin/Release') {
-        // TrueAudioNext.dll/GPUUtilities.dll нужны только для GPU-фич;
-        // phonon.dll работает без них.
-        include 'SteamAudioJni.dll', 'phonon.dll'
+    from(nativesBuildBin) {
+        include nativeArtifacts
     }
     into nativesResourceDir
 }
