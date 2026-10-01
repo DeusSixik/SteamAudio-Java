@@ -31,32 +31,82 @@ public final class Context implements AutoCloseable {
     /** SIMD: AVX-512 or newer (up to 16 simultaneous float operations). */
     public static final int SIMD_LEVEL_AVX512 = 4;
 
+    /**
+     * Sentinel for automatic SIMD level selection: resolved from the
+     * {@code steamaudio.simdLevel} system property (a level name like
+     * {@code "avx"} or an integer 0..4), falling back to
+     * {@link #SIMD_LEVEL_AVX}. AVX is the safest non-trivial level: CPUs
+     * without AVX2 (e.g. Intel i5-3470 / Ivy Bridge and older) cannot
+     * execute AVX2 code. Note that the official {@code phonon.dll} also
+     * caps the requested level at what the CPU supports (via IPP), so
+     * requesting AVX2 on older hardware is still safe — but an explicit
+     * AVX removes any dependence on that behavior.
+     */
+    public static final int SIMD_LEVEL_AUTO = -1;
+
     /** Flag: all API functions perform additional validation. Slows down execution. */
     public static final int CONTEXT_FLAG_VALIDATION = 1;
+
+    /** System property selecting the SIMD level for {@link #SIMD_LEVEL_AUTO}. */
+    public static final String SIMD_LEVEL_PROPERTY = "steamaudio.simdLevel";
 
     /** Opaque pointer to {@code IPLContext}; 0 means the context is closed. */
     private long peer;
 
     /**
-     * Creates the context with default settings: maximum SIMD level AVX2
-     * and no additional flags.
+     * Creates the context with default settings: automatic SIMD level
+     * selection (see {@link #SIMD_LEVEL_AUTO}; the effective default is
+     * AVX) and no additional flags.
      *
      * @throws SteamAudioException if Steam Audio returned a creation error
      */
     public Context() {
-        this(SIMD_LEVEL_AVX2, 0);
+        this(SIMD_LEVEL_AUTO, 0);
     }
 
     /**
      * Creates the context with the given settings.
      *
      * @param simdLevel maximum SIMD level that Steam Audio may use; one of
-     *                  the {@code SIMD_LEVEL_*} values
+     *                  the {@code SIMD_LEVEL_*} values, or
+     *                  {@link #SIMD_LEVEL_AUTO} to resolve from the
+     *                  {@code steamaudio.simdLevel} system property
+     *                  (falling back to {@link #SIMD_LEVEL_AVX})
      * @param flags     combination of {@code CONTEXT_FLAG_*} flags; 0 for no flags
      * @throws SteamAudioException if Steam Audio returned a creation error
      */
     public Context(int simdLevel, int flags) {
-        peer = nCreate(API_VERSION, simdLevel, flags);
+        peer = nCreate(API_VERSION, resolveSimdLevel(simdLevel), flags);
+    }
+
+    /**
+     * Resolves {@code SIMD_LEVEL_AUTO} (or any negative value) against the
+     * {@code steamaudio.simdLevel} system property. The property accepts
+     * either a level name ({@code sse2}, {@code sse4}, {@code avx},
+     * {@code avx2}, {@code avx512}, case-insensitive) or an integer 0..4.
+     * Anything invalid falls back to {@code SIMD_LEVEL_AVX}.
+     *
+     * @param simdLevel requested level
+     * @return the effective SIMD level
+     */
+    static int resolveSimdLevel(int simdLevel) {
+        if (simdLevel >= 0) {
+            return simdLevel;
+        }
+        String property = System.getProperty(SIMD_LEVEL_PROPERTY, "avx").trim().toLowerCase();
+        switch (property) {
+            case "sse2":
+            case "0": return SIMD_LEVEL_SSE2;
+            case "sse4":
+            case "1": return SIMD_LEVEL_SSE4;
+            case "avx":
+            case "2": return SIMD_LEVEL_AVX;
+            case "avx2":
+            case "3": return SIMD_LEVEL_AVX2;
+            case "avx512":
+            case "4": return SIMD_LEVEL_AVX512;
+            default: return SIMD_LEVEL_AVX;
+        }
     }
 
     /**

@@ -43,6 +43,19 @@ Hardware notes (see `gpu.GpuDevicesTest`):
 - Creating an EMBREE-type scene with a NULL Embree device crashes inside
   phonon — always supply a device for that scene type.
 
+### Low-end CPU support (i5-3470 class, pre-AVX2)
+
+- `Context.SIMD_LEVEL_AUTO` (the default): resolved from the
+  `steamaudio.simdLevel` system property (name or 0..4), falling back to
+  `SIMD_LEVEL_AVX`. AVX is the safe minimum for pre-Haswell CPUs; the
+  official `phonon.dll` also caps the requested level at what the CPU
+  supports (via IPP), but an explicit AVX removes any dependence on that.
+- `simulation.LowSpecSimulator`: parametric reflections (≈10x cheaper than
+  convolution), `NUM_RAYS = 64`, `NUM_BOUNCES = 2`, order-1 ambisonics.
+  Pair with `Source.OCCLUSION_RAYCAST` and render reflections through
+  `ReflectionEffect.TYPE_PARAMETRIC`; use `ReflectionMixer` + a separate
+  thread if convolution reverb is required.
+
 ### Remaining odds and ends
 
 - `Retain` variants for shared ownership (`iplSceneRetain`, `iplSourceRetain`,
