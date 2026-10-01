@@ -199,6 +199,23 @@ gradlew jmh           :: JMH benchmarks (src/jmh), results in build/reports/jmh
 Requirements: JDK 17+ (21 tested), CMake 3.20+, MSVC on Windows. Steam Audio
 headers/libs live in `natives/steamaudio/` (Apache-2.0, © Valve Corporation).
 
+## CI/CD
+
+GitHub Actions (`.github/workflows/build.yml`) runs on every push/PR:
+
+1. **Windows job** — builds natives, runs the full test suite, uploads the
+   `windows-x64` DLLs as an artifact.
+2. **Linux job** — same on ubuntu-22.04 (older glibc → wider distro support),
+   uploads the `linux-x64` shared libraries.
+3. **Jar job** — assembles a single fat jar bundling both platforms' natives.
+
+Pushing a **`v*` tag** (e.g. `v1.0.0`) additionally publishes a GitHub
+Release containing:
+
+- `SteamAudio-Java-v1.0.0.jar` — the fat jar (drop-in dependency);
+- `SteamAudio-Java-v1.0.0-natives-windows-x64.zip` / `...-linux-x64.zip` —
+  bare native libraries for custom deployments.
+
 ## Known upstream issues
 
 - [steam-audio#523](https://github.com/ValveSoftware/steam-audio/issues/523) —

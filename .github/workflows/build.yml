@@ -3,6 +3,7 @@ name: build
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
   workflow_dispatch:
 
@@ -110,3 +111,59 @@ jobs:
           name: SteamAudio-Java-jar
           path: build/libs/*.jar
           if-no-files-found: error
+
+  # On a v* tag: publish a GitHub Release with the fat jar (renamed to the
+  # tag version) plus per-platform native archives.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ jar, natives-windows, natives-linux ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download jar
+        uses: actions/download-artifact@v4
+        with:
+          name: SteamAudio-Java-jar
+          path: release/jar
+
+      - name: Download Windows natives
+        uses: actions/download-artifact@v4
+        with:
+          name: natives-windows-x64
+          path: release/natives-windows-x64
+
+      - name: Download Linux natives
+        uses: actions/download-artifact@v4
+        with:
+          name: natives-linux-x64
+          path: release/natives-linux-x64
+
+      - name: Prepare release files
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          mv release/jar/SteamAudio-Java-1.0-SNAPSHOT.jar \
+            "release/SteamAudio-Java-${TAG}.jar"
+          cd release/natives-windows-x64
+          zip -q "../SteamAudio-Java-${TAG}-natives-windows-x64.zip" *
+          cd ../natives-linux-x64
+          zip -q "../SteamAudio-Java-${TAG}-natives-linux-x64.zip" *
+          cd ..
+          rm -rf jar natives-windows-x64 natives-linux-x64
+          ls -la
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" release/* --clobber
+          else
+            gh release create "$TAG" release/* \
+              --title "SteamAudio-Java ${TAG}" \
+              --generate-notes
+          fi
